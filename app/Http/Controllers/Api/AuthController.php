@@ -10,9 +10,8 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-
     /**
-     * Register a new user and create a token.
+     * REGISTER USER (TOKEN ONLY)
      */
     public function register(Request $request)
     {
@@ -20,7 +19,6 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|unique:users,phone',
             'password' => 'required|min:8',
-            'device' => 'nullable|in:web,mobile',
         ]);
 
         if ($validator->fails()) {
@@ -37,47 +35,24 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User registration failed'
-            ], 500);
-        }
-
-        // 🌐 WEB (cookie session)
-        if ($request->device === 'web') {
-            auth()->login($user);
-            $request->session()->regenerate();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Web registration successful',
-                'user' => $user,
-                'type' => 'cookie'
-            ], 201);
-        }
-
-        // 📱 MOBILE (token auth)
-        $token = $user->createToken('mobile_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Mobile registration successful',
+            'message' => 'User registered successfully',
             'user' => $user,
             'token' => $token,
-            'type' => 'token'
         ], 201);
     }
 
     /**
-     * Login a new user and create a token.
+     * LOGIN USER (TOKEN ONLY)
      */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'phone' => 'required',
             'password' => 'required',
-            'device' => 'nullable|in:web,mobile',
         ]);
 
         if ($validator->fails()) {
@@ -110,28 +85,26 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // 🌐 WEB LOGIN (cookie session)
-        if ($request->device === 'web') {
-            auth()->login($user);
-            $request->session()->regenerate();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Web login successful',
-                'user' => $user,
-                'type' => 'cookie'
-            ]);
-        }
-
-        // 📱 MOBILE LOGIN (token)
-        $token = $user->createToken('mobile_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Mobile login successful',
+            'message' => 'Login successful',
             'user' => $user,
             'token' => $token,
-            'type' => 'token'
+        ], 200);
+    }
+
+    /**
+     * LOGOUT (REVOKE TOKEN)
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully'
         ]);
     }
 }
