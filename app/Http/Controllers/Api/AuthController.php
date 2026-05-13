@@ -33,6 +33,9 @@ class AuthController extends Controller
             'name' => $request->name,
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
+            'role' => 'resident',
+            'phone_verified' => false,
+            'granted' => false,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
