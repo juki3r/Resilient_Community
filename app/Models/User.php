@@ -26,7 +26,11 @@ class User extends Authenticatable
         'role',
         'phone_verified',
         'otp',
-        'granted'
+        'granted',
+        'barangay',
+        'otp_code',
+        'otp_sent_at',
+        'otp_expires_at',
     ];
 
     /**

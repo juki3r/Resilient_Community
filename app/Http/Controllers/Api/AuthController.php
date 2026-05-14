@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -18,6 +20,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'phone' => 'required|unique:users,phone',
+            'barangay' => 'required',
             'password' => 'required|min:8|confirmed',
         ]);
 
@@ -30,21 +33,20 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => ucwords(strtolower($request->name)),
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
             'role' => 'resident',
             'phone_verified' => false,
             'granted' => false,
+            'barangay' => ucwords(strtolower($request->barangay)),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',
             'user' => $user,
-            'token' => $token,
         ], 201);
     }
 
@@ -54,7 +56,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required',
+            'phone' => 'required|min:11|max:11',
             'password' => 'required',
         ]);
 
@@ -88,6 +90,39 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // 🔐 NOT VERIFIED → OTP FLOW
+        if ($user->phone_verified == false) {
+
+            // check cooldown (avoid spam)
+            if ($user->otp_sent_at && Carbon::parse($user->otp_sent_at)->diffInSeconds(now()) < 60) {
+                $otp = $user->otp_code; // reuse existing OTP
+            } else {
+                $otp = rand(100000, 999999);
+
+                $user->update([
+                    'otp_code' => $otp,
+                    'otp_expires_at' => Carbon::now()->addMinutes(5),
+                    'otp_sent_at' => now(),
+                ]);
+
+                // send SMS
+                Http::withHeaders([
+                    'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $user->phone,
+                    'message' => "Your OTP is: $otp"
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'status' => 'otp_required',
+                'message' => 'OTP sent to your phone',
+                'phone' => $user->phone
+            ], 403);
+        }
+
+        // ✅ VERIFIED USER → LOGIN SUCCESS
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -96,6 +131,93 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,
         ], 200);
+    }
+
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+            'otp' => 'required|digits:6'
+        ]);
+
+        $user = User::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        // expired check (5 minutes)
+        if (!$user->otp_sent_at || Carbon::parse($user->otp_sent_at)->addMinutes(5)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP expired'
+            ], 400);
+        }
+
+        if ($user->otp_code !== $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP'
+            ], 401);
+        }
+
+        // ✅ mark verified
+        $user->update([
+            'phone_verified' => true,
+            'otp_code' => null,
+            'otp_sent_at' => null,
+        ]);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP verified successfully',
+            'token' => $token,
+            'user' => $user
+        ]);
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required'
+        ]);
+
+        $user = User::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $otp = rand(100000, 999999);
+
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinutes(5),
+            'otp_sent_at' => now(),
+        ]);
+
+        // send SMS
+        Http::withHeaders([
+            'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+        ])->post('https://carlesppo.com/api/send-sms-api', [
+            'phone_number' => $user->phone,
+            'message' => "Your OTP is: $otp"
+        ]);
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP resent successfully'
+        ]);
     }
 
     /**
