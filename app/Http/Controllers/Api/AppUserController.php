@@ -277,7 +277,7 @@ class AppUserController extends Controller
                 'status'  => 'success',
                 'message' => "Notification + SMS sent successfully.",
                 'data' => $title,
-                'fcm' => $mobileuser
+                'fcm' => $mobileuser->fcm_token
             ]);
         } catch (\Exception $e) {
             return response()->json([
