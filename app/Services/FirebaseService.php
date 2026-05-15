@@ -15,38 +15,11 @@ class FirebaseService
         $this->credentialsPath = config_path('firebase/firebase-adminsdk.json');
     }
 
-    // public function sendNotification($fcmToken, $title, $body)
-    // {
-    //     try {
-    //         $accessToken = $this->getAccessToken();
-    //         $client = new Client();
-    //         $response = $client->post($this->apiUrl, [
-    //             'headers' => [
-    //                 'Authorization' => 'Bearer ' . $accessToken,
-    //                 'Content-Type'  => 'application/json',
-    //             ],
-    //             'json' => [
-    //                 'message' => [
-    //                     'token' => $fcmToken,
-    //                     'notification' => [
-    //                         'title' => $title,
-    //                         'body'  => $body,
-    //                     ],
-    //                 ],
-    //             ],
-    //         ]);
-    //         return json_decode($response->getBody(), true);
-    //     } catch (\Exception $e) {
-    //         Log::error('Firebase send error: ' . $e->getMessage());
-    //         return false;
-    //     }
-    // }
-    public function sendNotification($fcmToken, $title, $body, $data = [])
+    public function sendNotification($fcmToken, $title, $body)
     {
         try {
             $accessToken = $this->getAccessToken();
             $client = new Client();
-
             $response = $client->post($this->apiUrl, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $accessToken,
@@ -55,23 +28,50 @@ class FirebaseService
                 'json' => [
                     'message' => [
                         'token' => $fcmToken,
-
                         'notification' => [
                             'title' => $title,
                             'body'  => $body,
                         ],
-
-                        'data' => $data, // 👈 IMPORTANT
                     ],
                 ],
             ]);
-
             return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             Log::error('Firebase send error: ' . $e->getMessage());
             return false;
         }
     }
+    // public function sendNotification($fcmToken, $title, $body, $data = [])
+    // {
+    //     try {
+    //         $accessToken = $this->getAccessToken();
+    //         $client = new Client();
+
+    //         $response = $client->post($this->apiUrl, [
+    //             'headers' => [
+    //                 'Authorization' => 'Bearer ' . $accessToken,
+    //                 'Content-Type'  => 'application/json',
+    //             ],
+    //             'json' => [
+    //                 'message' => [
+    //                     'token' => $fcmToken,
+
+    //                     'notification' => [
+    //                         'title' => $title,
+    //                         'body'  => $body,
+    //                     ],
+
+    //                     'data' => $data, // 👈 IMPORTANT
+    //                 ],
+    //             ],
+    //         ]);
+
+    //         return json_decode($response->getBody(), true);
+    //     } catch (\Exception $e) {
+    //         Log::error('Firebase send error: ' . $e->getMessage());
+    //         return false;
+    //     }
+    // }
 
     private function getAccessToken()
     {
