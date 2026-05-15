@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Http;
 
 class AppUserController extends Controller
 {
@@ -146,7 +147,8 @@ class AppUserController extends Controller
     {
         $search = $request->search;
 
-        $query = MobileUser::query();
+        $query = MobileUser::query()
+            ->where('user_id', auth()->id());
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -219,5 +221,66 @@ class AppUserController extends Controller
         return response()->json([
             'message' => 'User deleted successfully.',
         ]);
+    }
+
+
+
+    public function sendToOne($id)
+    {
+        try {
+            $mobileuser = MobileUser::findOrFail($id);
+
+            if (!$mobileuser->fcm_token) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'User has no FCM token registered.'
+                ], 400);
+            }
+
+            $title = request('title');
+            $body  = request('body');
+
+            // 1️⃣ SAVE NOTIFICATION (USER-BASED)
+            // Notification::create([
+            //     'user_id' => $user->id,
+            //     'title'   => $title,
+            //     'body' => $body,
+            //     'type'    => 'admin_message',
+            //     'is_read' => false,
+            // ]);
+
+            // FIREBASE PUSH
+            (new \App\Services\FirebaseService)->sendNotification(
+                $mobileuser->fcm_token,
+                $title,
+                \Illuminate\Support\Str::limit($body, 160),
+                [
+                    'screen' => 'Requests',
+                    'requests_id' => (string) $mobileuser->id,
+                ]
+            );
+
+            // 3️⃣ SMS
+            try {
+                Http::withHeaders([
+                    'X-API-KEY' => env('SMS_API_KEY')
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $mobileuser->phone,
+                    'message' => "[Daan Banwa ALERT]\n$title\n$body"
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('SMS failed: ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => "Notification + SMS sent successfully."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

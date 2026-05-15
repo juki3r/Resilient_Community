@@ -49,3 +49,7 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
 });
 
 Route::apiResource('residents', ResidentController::class);
+
+
+
+Route::post('/send-to-one/{id}', [AppUserController::class, 'sendToOne']);
