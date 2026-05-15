@@ -29,17 +29,13 @@ class AppUserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $errors = [];
-
-            foreach ($validator->errors()->toArray() as $field => $messages) {
-                $errors[$field] = $messages[0]; // first error only
-            }
-
             return response()->json([
                 'success' => false,
-                'errors' => $errors
+                'message' => $validator->errors()->first()
             ], 422);
         }
+
+
         $barangay_belongs = User::where('barangay', $request->barangay)->value('id');
 
         if (!$barangay_belongs) {
