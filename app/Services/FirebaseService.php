@@ -43,7 +43,12 @@ class FirebaseService
             return json_decode($response->getBody(), true);
         } catch (\Exception $e) {
             Log::error('Firebase send error: ' . $e->getMessage());
-            return false;
+            Log::error('Firebase trace: ' . $e->getTraceAsString());
+
+            return [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ];
         }
     }
 
