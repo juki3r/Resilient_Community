@@ -23,7 +23,7 @@ class AppUserController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'phone' => 'required|unique:mobile_users,phone',
+            'phone' => 'required|unique:mobile_users,phone|min:11|max:11',
             'barangay' => 'required',
             'password' => 'required|min:8|confirmed',
         ]);
@@ -131,6 +131,95 @@ class AppUserController extends Controller
             'user' => $mobileuser,
             'token' => $token,
         ], 200);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+            'otp' => 'required|digits:6'
+        ]);
+
+        $user = MobileUser::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mobile user not found'
+            ], 404);
+        }
+
+        // ✅ expiry check (ONLY ONE SOURCE OF TRUTH)
+        if (!$user->otp_expires_at || now()->isAfter($user->otp_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP expired'
+            ], 400);
+        }
+
+        // ✅ safe compare
+        if ((string)$user->otp_code !== (string)$request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP'
+            ], 401);
+        }
+
+        $user->update([
+            'phone_verified' => true,
+            'otp_code' => null,
+            'otp_expires_at' => null,
+        ]);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP verified successfully',
+            'token' => $token,
+            'user' => $user
+        ]);
+    }
+    public function resendOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required'
+        ]);
+
+        $user = MobileUser::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mobile user not found'
+            ], 404);
+        }
+
+        $otp = rand(100000, 999999);
+
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => now()->addMinutes(5),
+        ]);
+
+        $response = Http::withHeaders([
+            'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+        ])->post('https://carlesppo.com/api/send-sms-api', [
+            'phone_number' => $user->phone,
+            'message' => "Your OTP is: $otp"
+        ]);
+
+        if (!$response->successful()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send OTP'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP resent successfully'
+        ]);
     }
 
     /**

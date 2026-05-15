@@ -26,6 +26,8 @@ Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 //Mobile app login and register
 Route::post('/appuser/login', [AppUserController::class, 'login']);
 Route::post('/appuser/register', [AppUserController::class, 'register']);
+Route::post('/appuser/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/appuser/resend-otp', [AuthController::class, 'resendOtp']);
 
 
 
