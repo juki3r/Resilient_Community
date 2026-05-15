@@ -242,7 +242,7 @@ class AppUserController extends Controller
             $body  = request('body');
 
             // FIREBASE PUSH
-            (new \App\Services\FirebaseService)->sendNotification(
+            $fcmResponse = (new \App\Services\FirebaseService)->sendNotification(
                 $mobileuser->fcm_token,
                 $title,
                 $body,
@@ -251,6 +251,7 @@ class AppUserController extends Controller
                     'requests_id' => (string) $mobileuser->id,
                 ]
             );
+            \Log::info('FCM RESPONSE:', (array) $fcmResponse);
 
             // 3️⃣ SMS
             try {
@@ -268,7 +269,8 @@ class AppUserController extends Controller
                 'status'  => 'success',
                 'message' => "Notification + SMS sent successfully.",
                 'data' => $title,
-                'fcm' => $mobileuser->fcm_token
+                'fcm' => $mobileuser->fcm_token,
+                'fcm_response' => $fcmResponse
             ]);
         } catch (\Exception $e) {
             return response()->json([
