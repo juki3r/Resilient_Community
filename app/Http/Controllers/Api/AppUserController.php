@@ -54,7 +54,7 @@ class AppUserController extends Controller
             'role' => 'resident',
             'phone_verified' => false,
             'granted' => false,
-            'barangay' => $request->barangay,
+            'barangay' => ucfirst($request->barangay),
         ]);
 
         // ✅ OTP generate
