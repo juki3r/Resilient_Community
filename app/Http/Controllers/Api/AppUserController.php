@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\MobileUser;
 use App\Models\User;
+use App\Services\FirebaseService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Http;
-use App\Services\FirebaseService;
 
 class AppUserController extends Controller
 {
@@ -37,94 +38,113 @@ class AppUserController extends Controller
 
         $barangay_belongs = User::where('barangay', $request->barangay)->value('id');
 
-        if ($barangay_belongs) {
-            $mobileuser = MobileUser::create([
-                'user_id' => $barangay_belongs,
-                'first_name' => $request->firstname,
-                'last_name' => $request->lastname,
-                'phone' => $request->phone,
-                'password' => bcrypt($request->password),
-                'role' => 'resident',
-                'phone_verified' => false,
-                'granted' => false,
-                'barangay' => $request->barangay,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Mobile User registered successfully',
-                'user' => $mobileuser,
-            ], 201);
-        } else {
+        if (!$barangay_belongs) {
             return response()->json([
                 'success' => false,
-                'message' => 'User registered failed',
-            ], 201);
+                'message' => 'Barangay not found'
+            ], 404);
         }
+
+        $mobileuser = MobileUser::create([
+            'user_id' => $barangay_belongs,
+            'first_name' => $request->firstname,
+            'last_name' => $request->lastname,
+            'phone' => $request->phone,
+            'password' => bcrypt($request->password),
+            'role' => 'resident',
+            'phone_verified' => false,
+            'granted' => false,
+            'barangay' => $request->barangay,
+        ]);
+
+        // ✅ OTP generate
+        $otp = rand(100000, 999999);
+
+        // ⚠️ FIX: update correct model
+        $mobileuser->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinutes(5),
+            'otp_sent_at' => now(),
+        ]);
+
+        // ✅ Send SMS
+        Http::withHeaders([
+            'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+        ])->post('https://carlesppo.com/api/send-sms-api', [
+            'phone_number' => $mobileuser->phone,
+            'message' => "Your OTP is: $otp"
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP sent successfully',
+            'user_id' => $mobileuser->id, // IMPORTANT for React Native
+            'phone' => $mobileuser->phone,
+        ], 201);
     }
 
     /**
      * LOGIN USER (TOKEN ONLY)
      */
-    // public function login(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'phone' => 'required',
-    //         'password' => 'required',
-    //     ]);
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required',
+            'password' => 'required',
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Validation failed',
-    //             'errors' => $validator->errors()
-    //         ], 422);
-    //     }
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-    //     $user = User::where('phone', $request->phone)->first();
+        $mobileuser = MobileUser::where('phone', $request->phone)->first();
 
-    //     if (!$user) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User not found',
-    //             'errors' => [
-    //                 'phone' => ['No account found with this phone number']
-    //             ]
-    //         ], 404);
-    //     }
+        if (!$mobileuser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mobile user not found',
+                'errors' => [
+                    'phone' => ['No account found with this phone number']
+                ]
+            ], 404);
+        }
 
-    //     if (!Hash::check($request->password, $user->password)) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Invalid credentials',
-    //             'errors' => [
-    //                 'password' => ['Incorrect password']
-    //             ]
-    //         ], 401);
-    //     }
+        if (!Hash::check($request->password, $mobileuser->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials',
+                'errors' => [
+                    'password' => ['Incorrect password']
+                ]
+            ], 401);
+        }
 
-    //     $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $mobileuser->createToken('auth_token')->plainTextToken;
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Login successful',
-    //         'user' => $user,
-    //         'token' => $token,
-    //     ], 200);
-    // }
+        return response()->json([
+            'success' => true,
+            'message' => 'Login successful',
+            'user' => $mobileuser,
+            'token' => $token,
+        ], 200);
+    }
 
-    // /**
-    //  * LOGOUT (REVOKE TOKEN)
-    //  */
-    // public function logout(Request $request)
-    // {
-    //     $request->user()->currentAccessToken()->delete();
+    /**
+     * LOGOUT (REVOKE TOKEN)
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
 
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Logged out successfully'
-    //     ]);
-    // }
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully'
+        ]);
+    }
 
 
 
