@@ -255,10 +255,10 @@ class AppUserController extends Controller
                 $mobileuser->fcm_token,
                 $title,
                 \Illuminate\Support\Str::limit($body, 160),
-                // [
-                //     'screen' => 'Requests',
-                //     'requests_id' => (string) $mobileuser->id,
-                // ]
+                [
+                    'screen' => 'Requests',
+                    'requests_id' => (string) $mobileuser->id,
+                ]
             );
 
             // 3️⃣ SMS
