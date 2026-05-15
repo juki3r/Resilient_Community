@@ -241,20 +241,11 @@ class AppUserController extends Controller
             $title = request('title');
             $body  = request('body');
 
-            // 1️⃣ SAVE NOTIFICATION (USER-BASED)
-            // Notification::create([
-            //     'user_id' => $user->id,
-            //     'title'   => $title,
-            //     'body' => $body,
-            //     'type'    => 'admin_message',
-            //     'is_read' => false,
-            // ]);
-
             // FIREBASE PUSH
             (new \App\Services\FirebaseService)->sendNotification(
                 $mobileuser->fcm_token,
                 $title,
-                \Illuminate\Support\Str::limit($body, 160),
+                $body,
                 [
                     'screen' => 'Requests',
                     'requests_id' => (string) $mobileuser->id,
