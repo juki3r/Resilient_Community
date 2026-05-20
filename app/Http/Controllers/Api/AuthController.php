@@ -37,7 +37,7 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'fullname' => ucwords(strtolower($request->name)),
+            'fullname' => ucwords(strtolower($request->fullname)),
             'phone' => $request->phone,
 
             'province' => ucwords(strtolower($request->province)),
