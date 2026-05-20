@@ -108,7 +108,7 @@ class AuthController extends Controller
         if ($user->phone_verified && !$user->granted) {
             return response()->json([
                 'success' => false,
-                'status'  => 'aprroval_needed',
+                'status'  => 'approval_needed',
                 'message' => 'Your account is pending approval.',
                 'user' => $user,
             ], 403);
@@ -219,7 +219,7 @@ class AuthController extends Controller
         if (!$user->granted) {
             return response()->json([
                 'success' => false,
-                'status'  => 'aprroval_needed',
+                'status'  => 'approval_needed',
                 'message' => 'Your account is pending approval.',
                 'user' => $user
             ], 403);
