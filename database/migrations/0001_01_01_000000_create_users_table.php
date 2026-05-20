@@ -19,7 +19,7 @@ return new class extends Migration
 
 
             $table->string('province');
-            $table->string('municipal');
+            $table->string('municipality');
 
             $table->string('username')->unique();
             $table->string('password');

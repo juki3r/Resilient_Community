@@ -22,7 +22,7 @@ class AuthController extends Controller
             'phone' => 'required|unique:users,phone',
 
             'province' => 'required',
-            'municipal' => 'required',
+            'municipality' => 'required',
 
             'username' => 'required|unique:users,username',
             'password' => 'required|min:8|confirmed',
