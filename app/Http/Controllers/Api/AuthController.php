@@ -65,80 +65,109 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|min:11|max:11',
-            'password' => 'required',
+            'username' => 'required|string',
+            'password' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        $user = User::where('phone', $request->phone)->first();
+        // Normalize username (Admin, ADMIN, admin → admin)
+        $username = strtolower(trim($request->username));
+
+        // Find user
+        $user = User::whereRaw('LOWER(username) = ?', [$username])->first();
 
         if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found',
                 'errors' => [
-                    'phone' => ['No account found with this phone number']
-                ]
+                    'username' => ['No account found with this username.'],
+                ],
             ], 404);
         }
 
+        // Check password
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
                 'errors' => [
-                    'password' => ['Incorrect password']
-                ]
+                    'password' => ['Incorrect password.'],
+                ],
             ], 401);
         }
 
-        // 🔐 NOT VERIFIED → OTP FLOW
-        if ($user->phone_verified == false) {
+        // Optional: account approval check
+        if (!$user->granted) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your account is pending approval.',
+            ], 403);
+        }
 
-            // check cooldown (avoid spam)
-            if ($user->otp_sent_at && Carbon::parse($user->otp_sent_at)->diffInSeconds(now()) < 60) {
-                $otp = $user->otp_code; // reuse existing OTP
+        // Phone verification / OTP flow
+        if (!$user->phone_verified) {
+
+            // Reuse existing OTP if sent within the last 60 seconds
+            if (
+                $user->otp_sent_at &&
+                Carbon::parse($user->otp_sent_at)->diffInSeconds(now()) < 60
+            ) {
+                $otp = $user->otp_code;
             } else {
                 $otp = rand(100000, 999999);
 
                 $user->update([
-                    'otp_code' => $otp,
-                    'otp_expires_at' => Carbon::now()->addMinutes(5),
-                    'otp_sent_at' => now(),
+                    'otp_code'       => $otp,
+                    'otp_expires_at' => now()->addMinutes(5),
+                    'otp_sent_at'    => now(),
                 ]);
 
-                // send SMS
+                // Send SMS
                 Http::withHeaders([
-                    'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+                    'X-API-KEY' => 'qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY',
                 ])->post('https://carlesppo.com/api/send-sms-api', [
                     'phone_number' => $user->phone,
-                    'message' => "Your OTP is: $otp"
+                    'message'      => "Your OTP is: {$otp}",
                 ]);
             }
 
             return response()->json([
                 'success' => false,
-                'status' => 'otp_required',
-                'message' => 'OTP sent to your phone',
-                'phone' => $user->phone
+                'status'  => 'otp_required',
+                'message' => 'OTP sent to your phone.',
+                'phone'   => $user->phone,
             ], 403);
         }
 
-        // ✅ VERIFIED USER → LOGIN SUCCESS
+        // Delete old tokens (optional)
+        $user->tokens()->delete();
+
+        // Create new token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token,
+            'message' => 'Login successful.',
+            'token'   => $token,
+            'user'    => [
+                'id'              => $user->id,
+                'fullname'        => $user->fullname,
+                'username'        => $user->username,
+                'phone'           => $user->phone,
+                'province'        => $user->province,
+                'municipality'    => $user->municipality,
+                'role'            => $user->role,
+                'granted'         => (bool) $user->granted,
+                'phone_verified'  => (bool) $user->phone_verified,
+            ],
         ], 200);
     }
 
