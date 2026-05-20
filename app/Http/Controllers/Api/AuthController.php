@@ -211,16 +211,21 @@ class AuthController extends Controller
             'otp_sent_at' => null,
         ]);
 
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         // Optional: account approval check
         if (!$user->granted) {
             return response()->json([
                 'success' => false,
                 'status'  => 'aprroval_needed',
                 'message' => 'Your account is pending approval.',
+                'token' => $token,
+                'user' => $user
             ], 403);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+
 
         return response()->json([
             'success' => true,
