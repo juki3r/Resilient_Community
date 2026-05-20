@@ -105,9 +105,10 @@ class AuthController extends Controller
         }
 
         // Optional: account approval check
-        if (!$user->granted) {
+        if ($user->phone_verified && !$user->granted) {
             return response()->json([
                 'success' => false,
+                'status'  => 'aprroval_needed',
                 'message' => 'Your account is pending approval.',
             ], 403);
         }
