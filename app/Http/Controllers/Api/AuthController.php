@@ -18,9 +18,13 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'fullname' => 'required|string|max:255',
             'phone' => 'required|unique:users,phone',
+
+            'province' => 'required',
             'municipal' => 'required',
+
+            'username' => 'required|unique:users,username',
             'password' => 'required|min:8|confirmed',
         ]);
 
@@ -33,13 +37,17 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => ucwords(strtolower($request->name)),
+            'fullname' => ucwords(strtolower($request->name)),
             'phone' => $request->phone,
-            'password' => bcrypt($request->password),
+
+            'province' => ucwords(strtolower($request->province)),
+            'municipal' => ucwords(strtolower($request->municipal)),
+
             'role' => 'resident',
             'phone_verified' => false,
             'granted' => false,
-            'municipal' => ucwords(strtolower($request->barangay)),
+
+            'password' => bcrypt($request->password),
         ]);
 
 

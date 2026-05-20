@@ -13,15 +13,23 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+
+            $table->string('fullname');
             $table->string('phone')->unique();
+
+
+            $table->string('province');
+            $table->string('municipal');
+
+            $table->string('username')->unique();
+            $table->string('password');
+
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
             $table->string('otp_code')->nullable();
             $table->timestamp('otp_sent_at')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
-            $table->string('municipal');
+
             $table->string('role')->default('resident');
             $table->boolean('phone_verified')->default(false);
             $table->string('otp')->nullable();
