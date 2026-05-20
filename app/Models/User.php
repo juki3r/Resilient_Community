@@ -27,7 +27,7 @@ class User extends Authenticatable
         'phone_verified',
         'otp',
         'granted',
-        'barangay',
+        'municipal',
         'otp_code',
         'otp_sent_at',
         'otp_expires_at',

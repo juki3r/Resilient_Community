@@ -21,7 +21,13 @@ return new class extends Migration
             $table->string('otp_code')->nullable();
             $table->timestamp('otp_sent_at')->nullable();
             $table->timestamp('otp_expires_at')->nullable();
-            $table->string('barangay');
+            $table->string('municipal');
+            $table->string('role')->default('resident');
+            $table->boolean('phone_verified')->default(false);
+            $table->string('otp')->nullable();
+            $table->boolean('granted')->default(false);
+
+
             $table->rememberToken();
             $table->timestamps();
         });
