@@ -88,7 +88,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'User not found',
                 'errors' => [
-                    'username' => ['No account found with this username.'],
+                    'username' => ['Invalid credentials.'],
                 ],
             ], 404);
         }
@@ -99,7 +99,7 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'Invalid credentials',
                 'errors' => [
-                    'password' => ['Incorrect password.'],
+                    'password' => ['Invalid credentials.'],
                 ],
             ], 401);
         }
