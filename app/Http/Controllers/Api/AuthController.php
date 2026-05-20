@@ -20,7 +20,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'phone' => 'required|unique:users,phone',
-            'barangay' => 'required',
+            'municipal' => 'required',
             'password' => 'required|min:8|confirmed',
         ]);
 
@@ -39,7 +39,7 @@ class AuthController extends Controller
             'role' => 'resident',
             'phone_verified' => false,
             'granted' => false,
-            'barangay' => ucwords(strtolower($request->barangay)),
+            'municipal' => ucwords(strtolower($request->barangay)),
         ]);
 
 
