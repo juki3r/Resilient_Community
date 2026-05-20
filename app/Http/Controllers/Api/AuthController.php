@@ -41,7 +41,7 @@ class AuthController extends Controller
             'phone' => $request->phone,
 
             'province' => ucwords(strtolower($request->province)),
-            'municipal' => ucwords(strtolower($request->municipality)),
+            'municipality' => ucwords(strtolower($request->municipality)),
 
             'role' => 'resident',
             'phone_verified' => false,
