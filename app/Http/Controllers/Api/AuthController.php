@@ -110,6 +110,7 @@ class AuthController extends Controller
                 'success' => false,
                 'status'  => 'aprroval_needed',
                 'message' => 'Your account is pending approval.',
+                'user' => $user,
             ], 403);
         }
 
@@ -212,7 +213,7 @@ class AuthController extends Controller
         ]);
 
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+
 
         // Optional: account approval check
         if (!$user->granted) {
@@ -220,10 +221,11 @@ class AuthController extends Controller
                 'success' => false,
                 'status'  => 'aprroval_needed',
                 'message' => 'Your account is pending approval.',
-                'token' => $token,
                 'user' => $user
             ], 403);
         }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
 
 
