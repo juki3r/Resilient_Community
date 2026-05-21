@@ -4,7 +4,6 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate as DocumentRequest;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class CertificateController extends Controller
