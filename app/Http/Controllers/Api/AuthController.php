@@ -284,4 +284,12 @@ class AuthController extends Controller
             'message' => 'Logged out successfully'
         ]);
     }
+
+
+    public function myGrantedStatus(Request $request)
+    {
+        return response()->json([
+            'granted' => (bool) $request->user()->granted,
+        ]);
+    }
 }

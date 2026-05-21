@@ -30,7 +30,7 @@ Route::post('/appuser/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/appuser/resend-otp', [AuthController::class, 'resendOtp']);
 
 
-
+Route::middleware('auth:sanctum')->get('/me/granted-status', [AuthController::class, 'myGrantedStatus']);
 
 
 
