@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/ping', function () {
     return response()->json([
         'success' => true,
-        'message' => 'PONG_MTA is working advance'
+        'message' => 'PONG_MTA is working advance now'
     ], 200);
 });
 
