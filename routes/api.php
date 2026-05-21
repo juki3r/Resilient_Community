@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\AnnouncementController;
 use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\api\CertificateController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,27 +34,21 @@ Route::post('/appuser/resend-otp', [AuthController::class, 'resendOtp']);
 Route::middleware('auth:sanctum')->get('/me/granted-status', [AuthController::class, 'myGrantedStatus']);
 
 
-
-
-
-
-
-
-
-
-
-
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
 
+    //Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
     Route::apiResource('mobile-users', AppUserController::class);
-
     Route::apiResource('announcements', AnnouncementController::class);
+
+
+    //Certificates
+    Route::post('/certificates', [CertificateController::class, 'store']);
+    Route::get('/certificates', [CertificateController::class, 'index']);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
