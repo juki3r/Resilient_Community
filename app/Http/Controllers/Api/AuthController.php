@@ -77,10 +77,8 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $username = $request->username;
+        $user = User::whereRaw('BINARY username = ?', [$request->username])->first();
 
-        // Find user
-        $user = User::where('username', $username)->first();
 
         if (!$user) {
             return response()->json([
