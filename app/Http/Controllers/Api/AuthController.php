@@ -77,11 +77,10 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Normalize username (Admin, ADMIN, admin → admin)
-        $username = strtolower(trim($request->username));
+        $username = $request->username;
 
         // Find user
-        $user = User::whereRaw('LOWER(username) = ?', [$username])->first();
+        $user = User::where('username', $username)->first();
 
         if (!$user) {
             return response()->json([
