@@ -13,9 +13,11 @@ class CertificateController extends Controller
      */
     public function index()
     {
-        return response()->json(
-            DocumentRequest::with('user')->latest()->get()
-        );
+        $data = DocumentRequest::with('user')->latest()->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
     }
 
     /**
