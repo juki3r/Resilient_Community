@@ -65,11 +65,11 @@ class CertificateController extends Controller
      */
     public function destroy($id)
     {
-        $request = DocumentRequest::findOrFail($id);
-        $request->delete();
+        $certificate = DocumentRequest::findOrFail($id);
+        $certificate->delete();
 
         return response()->json([
-            'message' => 'Request deleted successfully'
+            'message' => 'Deleted successfully'
         ]);
     }
 }

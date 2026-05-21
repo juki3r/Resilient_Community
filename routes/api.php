@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //Certificates
     Route::post('/certificates', [CertificateController::class, 'store']);
     Route::get('/certificates', [CertificateController::class, 'index']);
+    Route::delete('/certificates/{id}', [CertificateController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
