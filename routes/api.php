@@ -3,7 +3,7 @@
 use App\Http\Controllers\api\AnnouncementController;
 use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\api\CertificateController;
+use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
