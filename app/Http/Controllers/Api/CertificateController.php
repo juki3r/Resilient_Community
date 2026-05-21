@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Certificate as DocumentRequest;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class CertificateController extends Controller
 {
@@ -25,6 +26,8 @@ class CertificateController extends Controller
      */
     public function store(Request $request)
     {
+        // $user = User::find($id);
+
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'age' => 'required|integer',
