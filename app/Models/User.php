@@ -25,6 +25,7 @@ class User extends Authenticatable
 
         'province',
         'municipality',
+        'barangay',
 
         'username',
         'password',
