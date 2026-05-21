@@ -23,6 +23,7 @@ class AuthController extends Controller
 
             'province' => 'required',
             'municipality' => 'required',
+            'barangay' => 'required',
 
             'username' => 'required|unique:users,username',
             'password' => 'required|min:8|confirmed',
@@ -42,6 +43,7 @@ class AuthController extends Controller
 
             'province' => ucwords(strtolower($request->province)),
             'municipality' => ucwords(strtolower($request->municipality)),
+            'barangay' => ucwords(strtolower($request->barangay)),
 
             'username' => $request->username,
             'role' => 'resident',
