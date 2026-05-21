@@ -165,6 +165,7 @@ class AuthController extends Controller
                 'phone'           => $user->phone,
                 'province'        => $user->province,
                 'municipality'    => $user->municipality,
+                'barangay'    => $user->barangay,
                 'role'            => $user->role,
                 'granted'         => (bool) $user->granted,
                 'phone_verified'  => (bool) $user->phone_verified,
