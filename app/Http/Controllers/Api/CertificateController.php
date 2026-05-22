@@ -15,7 +15,15 @@ class CertificateController extends Controller
     {
         $query = DocumentRequest::with('user')
             ->where('user_id', auth()->id())
-            ->latest();
+            ->orderByRaw("
+            CASE 
+                WHEN status = 'pending' THEN 0
+                WHEN status = 'approved' THEN 1
+                WHEN status = 'rejected' THEN 2
+                ELSE 3
+            END
+        ")
+            ->orderBy('created_at', 'desc'); // proper fallback
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -27,9 +35,7 @@ class CertificateController extends Controller
             });
         }
 
-        return response()->json(
-            $query->paginate(10)
-        );
+        return response()->json($query->paginate(10));
     }
 
     /**
