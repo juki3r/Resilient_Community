@@ -1,38 +1,64 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
-use App\Models\Certificate;
-use App\Models\User;
-use Faker\Factory as Faker;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CertificateSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create();
+        $statuses = ['pending', 'approved', 'rejected'];
 
-        $userIds = User::pluck('id')->toArray();
+        $documents = [
+            'Barangay Clearance',
+            'Certificate of Residency',
+            'Certificate of Indigency',
+            'Business Permit',
+            'Certificate of Low Income',
+            'Certificate of Good Moral Character',
+        ];
 
-        if (empty($userIds)) {
-            throw new \Exception("No users found. Seed users first.");
+        $genders = ['Male', 'Female'];
+
+        $now = Carbon::now();
+
+        $batch = [];
+
+        // 👇 2 users
+        for ($userId = 16; $userId <= 17; $userId++) {
+
+            // 👇 1000 records per user
+            for ($i = 1; $i <= 1000; $i++) {
+
+                $batch[] = [
+                    'user_id' => $userId,
+                    'full_name' => "Test User {$userId}-{$i}",
+                    'age' => rand(18, 70),
+                    'gender' => $genders[array_rand($genders)],
+                    'address' => "Sample Address {$i}, City",
+                    'document_type' => $documents[array_rand($documents)],
+                    'purpose' => "Auto generated test data #{$i}",
+                    'company_name' => null,
+                    'business_nature' => null,
+                    'status' => $statuses[array_rand($statuses)],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+
+                // 🔥 insert in chunks (prevents memory crash)
+                if (count($batch) === 500) {
+                    DB::table('certificates')->insert($batch);
+                    $batch = [];
+                }
+            }
         }
 
-        for ($i = 0; $i < 1000; $i++) {
-            Certificate::create([
-                'user_id' => $faker->randomElement($userIds),
-                'full_name' => $faker->name,
-                'age' => $faker->numberBetween(18, 70),
-                'gender' => $faker->randomElement(['Male', 'Female']),
-                'address' => $faker->address,
-                'document_type' => $faker->randomElement([
-                    'Barangay Clearance',
-                    'Certificate of Residency',
-                    'Business Permit'
-                ]),
-                'purpose' => $faker->sentence,
-                'company_name' => $faker->optional()->company,
-                'business_nature' => $faker->optional()->jobTitle,
-            ]);
+        // final insert
+        if (!empty($batch)) {
+            DB::table('certificates')->insert($batch);
         }
     }
 }
