@@ -11,11 +11,23 @@ class CertificateController extends Controller
     /**
      * 📄 Get all requests (admin view)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = DocumentRequest::with('user')
-            ->latest()
-            ->paginate(10);
+        $query = DocumentRequest::with('user')->latest();
+
+        // 🔍 SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', "%$search%")
+                    ->orWhere('document_type', 'like', "%$search%")
+                    ->orWhere('purpose', 'like', "%$search%");
+            });
+        }
+
+        // 📄 PAGINATION
+        $data = $query->paginate(10);
 
         return response()->json($data);
     }
