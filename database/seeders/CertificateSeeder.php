@@ -43,6 +43,7 @@ class CertificateSeeder extends Seeder
                     'purpose' => "Auto generated test data #{$i}",
                     'company_name' => null,
                     'business_nature' => null,
+                    'status' => $statuses[array_rand($statuses)],
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
