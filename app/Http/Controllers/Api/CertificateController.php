@@ -13,9 +13,10 @@ class CertificateController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DocumentRequest::with('user')->latest();
+        $query = DocumentRequest::with('user')
+            ->where('user_id', auth()->id())
+            ->latest();
 
-        // 🔍 SEARCH
         if ($request->filled('search')) {
             $search = $request->search;
 
@@ -26,10 +27,9 @@ class CertificateController extends Controller
             });
         }
 
-        // 📄 PAGINATION
-        $data = $query->paginate(10);
-
-        return response()->json($data);
+        return response()->json(
+            $query->paginate(10)
+        );
     }
 
     /**
