@@ -3,62 +3,42 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use App\Models\Certificate;
+use App\Models\User;
+use Faker\Factory as Faker;
 
 class CertificateSeeder extends Seeder
 {
     public function run(): void
     {
-        $statuses = ['pending', 'approved', 'rejected'];
+        $faker = Faker::create();
 
-        $documents = [
-            'Barangay Clearance',
-            'Certificate of Residency',
-            'Certificate of Indigency',
-            'Business Permit',
-            'Certificate of Low Income',
-            'Certificate of Good Moral Character',
-        ];
+        $userIds = User::pluck('id')->toArray();
 
-        $genders = ['Male', 'Female'];
+        for ($i = 0; $i < 1000; $i++) {
+            Certificate::create([
+                'user_id' => $faker->randomElement($userIds),
 
-        $now = Carbon::now();
+                'full_name' => $faker->name, // ✅ REALISTIC NAME
 
-        $batch = [];
+                'age' => $faker->numberBetween(18, 75),
+                'gender' => $faker->randomElement(['Male', 'Female']),
 
-        // 👇 2 users
-        for ($userId = 16; $userId <= 17; $userId++) {
+                'address' => $faker->address,
 
-            // 👇 1000 records per user
-            for ($i = 1; $i <= 1000; $i++) {
+                'document_type' => $faker->randomElement([
+                    'Barangay Clearance',
+                    'Certificate of Residency',
+                    'Business Permit',
+                    'Certificate of Indigency',
+                ]),
+                'status' => $faker->randomElement(['pending', 'approved', 'rejected']),
 
-                $batch[] = [
-                    'user_id' => $userId,
-                    'full_name' => "Test User {$userId}-{$i}",
-                    'age' => rand(18, 70),
-                    'gender' => $genders[array_rand($genders)],
-                    'address' => "Sample Address {$i}, City",
-                    'document_type' => $documents[array_rand($documents)],
-                    'purpose' => "Auto generated test data #{$i}",
-                    'company_name' => null,
-                    'business_nature' => null,
-                    'status' => $statuses[array_rand($statuses)],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
+                'purpose' => $faker->sentence(6),
 
-                // 🔥 insert in chunks (prevents memory crash)
-                if (count($batch) === 500) {
-                    DB::table('certificates')->insert($batch);
-                    $batch = [];
-                }
-            }
-        }
-
-        // final insert
-        if (!empty($batch)) {
-            DB::table('certificates')->insert($batch);
+                'company_name' => $faker->optional()->company,
+                'business_nature' => $faker->optional()->jobTitle,
+            ]);
         }
     }
 }
