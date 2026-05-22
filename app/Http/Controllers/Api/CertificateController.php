@@ -50,6 +50,24 @@ class CertificateController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+
+        $certificate = DocumentRequest::findOrFail($id);
+
+        $certificate->update([
+            'status' => $request->status,
+        ]);
+
+        return response()->json([
+            'message' => 'Status updated successfully',
+            'data' => $certificate
+        ]);
+    }
+
     /**
      * 👁️ Show single request
      */

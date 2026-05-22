@@ -19,6 +19,7 @@ class Certificate extends Model
         'purpose',
         'company_name',
         'business_nature',
+        'status',
     ];
 
     /**
