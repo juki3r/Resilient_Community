@@ -12,6 +12,8 @@ class Blotter extends Model
 
     protected $fillable = [
 
+        'user_id',
+
         // =========================
         // BLOTTER REFERENCE
         // =========================
