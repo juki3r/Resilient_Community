@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\OrdinanceController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -78,6 +79,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/news/{id}', [NewsController::class, 'show']);
     Route::put('/news/{id}', [NewsController::class, 'update']);
     Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+
+
+    Route::get('/ordinances', [OrdinanceController::class, 'index']);
+    Route::post('/ordinances', [OrdinanceController::class, 'store']);
+    Route::get('/ordinances/{id}', [OrdinanceController::class, 'show']);
+    Route::put('/ordinances/{id}', [OrdinanceController::class, 'update']);
+    Route::delete('/ordinances/{id}', [OrdinanceController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
