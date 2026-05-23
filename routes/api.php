@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\api\AnnouncementController;
+use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
+use App\Http\Controllers\Api\IncidentController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\OrdinanceController;
 use App\Http\Controllers\Api\ResidentController;
@@ -86,6 +87,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ordinances/{id}', [OrdinanceController::class, 'show']);
     Route::put('/ordinances/{id}', [OrdinanceController::class, 'update']);
     Route::delete('/ordinances/{id}', [OrdinanceController::class, 'destroy']);
+
+    Route::apiResource('incidents', IncidentController::class);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
