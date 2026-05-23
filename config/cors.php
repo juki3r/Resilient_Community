@@ -19,5 +19,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,  // initial change due to cors error upload image at news
+    'supports_credentials' => true,
 ];
