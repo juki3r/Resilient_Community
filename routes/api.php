@@ -104,18 +104,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evacuation-centers', [EvacuationCenterController::class, 'store']);
     Route::put('/evacuation-centers/{id}', [EvacuationCenterController::class, 'update']);
     Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
-
-    // Events
-    Route::get('/evacuation-events', [EvacuationEventController::class, 'index']);
-    Route::post('/evacuation-events', [EvacuationEventController::class, 'store']);
-    Route::put('/evacuation-events/{id}', [EvacuationEventController::class, 'update']);
-    Route::delete('/evacuation-events/{id}', [EvacuationEventController::class, 'destroy']);
-
-    // Residents
-    Route::get('/evacuation-residents', [EvacuationResidentController::class, 'index']);
-    Route::post('/evacuation-residents', [EvacuationResidentController::class, 'store']);
-    Route::put('/evacuation-residents/{id}', [EvacuationResidentController::class, 'update']);
-    Route::delete('/evacuation-residents/{id}', [EvacuationResidentController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
