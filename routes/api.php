@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\AnnouncementController;
 use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
@@ -51,6 +52,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/certificates', [CertificateController::class, 'index']);
     Route::delete('/certificates/{id}', [CertificateController::class, 'destroy']);
     Route::patch('/certificates/{id}/status', [CertificateController::class, 'updateStatus']);
+
+
+
+
+    Route::prefix('blotters')->group(function () {
+
+        Route::get('/', [BlotterController::class, 'index']);
+        Route::post('/', [BlotterController::class, 'store']);
+        Route::get('/{id}', [BlotterController::class, 'show']);
+        Route::put('/{id}', [BlotterController::class, 'update']);
+        Route::delete('/{id}', [BlotterController::class, 'destroy']);
+
+        // Soft delete extras
+        Route::get('/trashed/all', [BlotterController::class, 'trashed']);
+        Route::post('/restore/{id}', [BlotterController::class, 'restore']);
+        Route::delete('/force/{id}', [BlotterController::class, 'forceDelete']);
+    });
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
