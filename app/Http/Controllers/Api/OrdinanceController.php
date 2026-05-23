@@ -116,7 +116,7 @@ class OrdinanceController extends Controller
         $user = auth()->user();
 
         $ordinance = Ordinance::where('id', $id)
-            ->where('user_id', $user->id)
+            ->where('barangay', $user->barangay)
             ->firstOrFail();
 
         $ordinance->delete();
