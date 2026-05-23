@@ -12,9 +12,9 @@ class OrdinanceController extends Controller
 {
     public function index(Request $request)
     {
-        $user = auth()->user();
+        $user = User::find(auth()->id());
 
-        $query = Ordinance::where('user_id', $user->id);
+        $query = Ordinance::where('barangay', $user->baranngay);
 
         if ($request->search) {
             $search = $request->search;
