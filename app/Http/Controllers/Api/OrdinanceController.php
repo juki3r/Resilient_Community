@@ -12,7 +12,11 @@ class OrdinanceController extends Controller
 {
     public function index(Request $request)
     {
-        $user = User::find(auth()->id());
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
         $query = Ordinance::where('barangay', $user->barangay);
 
@@ -36,7 +40,7 @@ class OrdinanceController extends Controller
     // ================= STORE (AUTO ASSIGN USER_ID)
     public function store(Request $request)
     {
-        $user = User::find(auth()->id());
+        $user = auth()->user();
         $validated = $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
