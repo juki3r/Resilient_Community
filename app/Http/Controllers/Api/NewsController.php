@@ -26,14 +26,21 @@ class NewsController extends Controller
         ]);
 
         // =====================
-        // IMAGE UPLOAD (FIXED)
+        // IMAGE UPLOAD (SAFE VERSION)
         // =====================
         if ($request->hasFile('image')) {
+
             $file = $request->file('image');
 
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $destination = public_path('uploads/news');
 
-            $file->move(public_path('uploads/news'), $filename);
+            if (!file_exists($destination)) {
+                mkdir($destination, 0777, true);
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            $file->move($destination, $filename);
 
             $validated['image'] = 'uploads/news/' . $filename;
         }
@@ -75,24 +82,32 @@ class NewsController extends Controller
         ]);
 
         // =====================
-        // IMAGE UPDATE (FIXED)
+        // IMAGE UPDATE (SAFE)
         // =====================
         if ($request->hasFile('image')) {
 
-            // optional: delete old image
+            // delete old image
             if ($news->image && file_exists(public_path($news->image))) {
                 unlink(public_path($news->image));
             }
 
             $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/news'), $filename);
+
+            $destination = public_path('uploads/news');
+
+            if (!file_exists($destination)) {
+                mkdir($destination, 0777, true);
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            $file->move($destination, $filename);
 
             $validated['image'] = 'uploads/news/' . $filename;
         }
 
         // =====================
-        // PUBLISHED LOGIC
+        // PUBLISH LOGIC
         // =====================
         if (isset($validated['status']) && $validated['status'] === 'published') {
             $validated['published_at'] = now();
