@@ -21,16 +21,21 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category' => 'nullable|string',
-            'image' => 'nullable|image|max:5120', // 5MB limit
+            'image' => 'nullable|image|max:5120',
             'status' => 'nullable|in:draft,published',
         ]);
 
         // =====================
-        // IMAGE UPLOAD
+        // IMAGE UPLOAD (FIXED)
         // =====================
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('news', 'public');
-            $validated['image'] = $path;
+            $file = $request->file('image');
+
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->move(public_path('uploads/news'), $filename);
+
+            $validated['image'] = 'uploads/news/' . $filename;
         }
 
         // =====================
@@ -39,10 +44,8 @@ class NewsController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['status'] = $validated['status'] ?? 'draft';
 
-        // only set published_at if actually published
-        $validated['published_at'] = $validated['status'] === 'published'
-            ? now()
-            : null;
+        $validated['published_at'] =
+            $validated['status'] === 'published' ? now() : null;
 
         $news = News::create($validated);
 
@@ -72,11 +75,20 @@ class NewsController extends Controller
         ]);
 
         // =====================
-        // IMAGE UPDATE
+        // IMAGE UPDATE (FIXED)
         // =====================
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('news', 'public');
-            $validated['image'] = $path;
+
+            // optional: delete old image
+            if ($news->image && file_exists(public_path($news->image))) {
+                unlink(public_path($news->image));
+            }
+
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/news'), $filename);
+
+            $validated['image'] = 'uploads/news/' . $filename;
         }
 
         // =====================
