@@ -19,6 +19,7 @@ class BlotterController extends Controller
         $search = $request->input('search');
 
         $query = Blotter::with(['complainant', 'respondent'])
+            ->where('user_id', $request->user()->id)
             ->latest();
 
         // SEARCH SUPPORT (IMPORTANT)
