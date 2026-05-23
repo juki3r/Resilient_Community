@@ -17,50 +17,49 @@ class NewsController extends Controller
     // STORE
     public function store(Request $request)
     {
-        // $validated = $request->validate([
-        //     'title' => 'required|string|max:255',
-        //     'content' => 'required|string',
-        //     'category' => 'nullable|string',
-        //     'image' => 'nullable|image|max:5120',
-        //     'status' => 'nullable|in:draft,published',
-        // ]);
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category' => 'nullable|string',
+            'image' => 'nullable|image|max:5120',
+            'status' => 'nullable|in:draft,published',
+        ]);
 
-        // // =====================
-        // // IMAGE UPLOAD (SAFE VERSION)
-        // // =====================
-        // if ($request->hasFile('image')) {
+        // =====================
+        // IMAGE UPLOAD (SAFE VERSION)
+        // =====================
+        if ($request->hasFile('image')) {
 
-        //     $file = $request->file('image');
+            $file = $request->file('image');
 
-        //     $destination = public_path('uploads/news');
+            $destination = public_path('uploads/news');
 
-        //     if (!file_exists($destination)) {
-        //         mkdir($destination, 0777, true);
-        //     }
+            if (!file_exists($destination)) {
+                mkdir($destination, 0777, true);
+            }
 
-        //     $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-        //     $file->move($destination, $filename);
+            $file->move($destination, $filename);
 
-        //     $validated['image'] = 'uploads/news/' . $filename;
-        // }
+            $validated['image'] = 'uploads/news/' . $filename;
+        }
 
-        // // =====================
-        // // DEFAULT VALUES
-        // // =====================
-        // $validated['user_id'] = auth()->id();
-        // $validated['status'] = $validated['status'] ?? 'draft';
+        // =====================
+        // DEFAULT VALUES
+        // =====================
+        $validated['user_id'] = auth()->id();
+        $validated['status'] = $validated['status'] ?? 'draft';
 
-        // $validated['published_at'] =
-        //     $validated['status'] === 'published' ? now() : null;
+        $validated['published_at'] =
+            $validated['status'] === 'published' ? now() : null;
 
-        // $news = News::create($validated);
+        $news = News::create($validated);
 
-        // return response()->json([
-        //     'message' => 'News created successfully',
-        //     'data' => $news
-        // ], 201);
-        dd($request->all(), $request->file('image'));
+        return response()->json([
+            'message' => 'News created successfully',
+            'data' => $news
+        ], 201);
     }
 
     // SHOW
