@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
+use App\Http\Controllers\api\NewsController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/restore/{id}', [BlotterController::class, 'restore']);
         Route::delete('/force/{id}', [BlotterController::class, 'forceDelete']);
     });
+
+
+
+    Route::get('/news', [NewsController::class, 'index']);
+    Route::post('/news', [NewsController::class, 'store']);
+    Route::get('/news/{id}', [NewsController::class, 'show']);
+    Route::put('/news/{id}', [NewsController::class, 'update']);
+    Route::delete('/news/{id}', [NewsController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
