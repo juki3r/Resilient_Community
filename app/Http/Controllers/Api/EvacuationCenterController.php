@@ -8,37 +8,32 @@ use Illuminate\Http\Request;
 
 class EvacuationCenterController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $user = auth()->user();
 
-        $query = EvacuationCenter::where('barangay', $user->barangay)
-            ->orderBy('created_at', 'desc');
-
-        // search support (matches your React)
-        if ($request->search) {
-            $query->where('name', 'like', "%{$request->search}%")
-                ->orWhere('location', 'like', "%{$request->search}%");
-        }
-
-        return response()->json(
-            $query->paginate(10)
-        );
+        return EvacuationCenter::where('barangay', $user->barangay)
+            ->orderBy('status', 'asc')
+            ->latest()
+            ->paginate(10);
     }
-
     public function store(Request $request)
     {
         $user = auth()->user();
 
         $validated = $request->validate([
             'name' => 'required|string',
-            'location' => 'nullable|string',
+            'location' => 'required|string',
             'capacity' => 'nullable|integer',
-            'contact_person' => 'nullable|string',
-            'contact_number' => 'nullable|string',
+            'event_type' => 'required|string',
+            'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'start_time' => 'required',
         ]);
 
         $validated['barangay'] = $user->barangay;
+        $validated['created_by'] = $user->id;
+        $validated['status'] = 'active';
 
         return EvacuationCenter::create($validated);
     }
@@ -50,10 +45,16 @@ class EvacuationCenterController extends Controller
         $center = EvacuationCenter::where('barangay', $user->barangay)
             ->findOrFail($id);
 
-        $center->update($request->all());
+        $validated = $request->validate([
+            'end_date' => 'nullable|date',
+            'end_time' => 'nullable',
+            'status' => 'nullable|in:active,ended',
+        ]);
+
+        $center->update($validated);
 
         return response()->json([
-            'message' => 'Updated',
+            'message' => 'Evacuation updated',
             'data' => $center
         ]);
     }

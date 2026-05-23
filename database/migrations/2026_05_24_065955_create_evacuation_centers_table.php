@@ -13,12 +13,29 @@ return new class extends Migration
     {
         Schema::create('evacuation_centers', function (Blueprint $table) {
             $table->id();
+            // CENTER INFO
             $table->string('name');
-            $table->string('location')->nullable();
+            $table->string('location');
             $table->integer('capacity')->nullable();
-            $table->string('contact_person')->nullable();
-            $table->string('contact_number')->nullable();
+
+            // EVACUATION STATUS
+            $table->string('event_type'); // flood, fire, earthquake, etc
+            $table->text('description')->nullable();
+
+            // TIMELINE
+            $table->date('start_date');
+            $table->time('start_time');
+
+            $table->date('end_date')->nullable();
+            $table->time('end_time')->nullable();
+
+            // STATUS
+            $table->string('status')->default('active');
+            // active | ended
+
+            // BARANGAY SCOPE
             $table->string('barangay');
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }
