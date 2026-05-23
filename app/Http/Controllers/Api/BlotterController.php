@@ -33,7 +33,7 @@ class BlotterController extends Controller
 
         dd($request->user());
 
-        return $query->paginate(10);
+        // return $query->paginate(10);
     }
 
     // =========================
