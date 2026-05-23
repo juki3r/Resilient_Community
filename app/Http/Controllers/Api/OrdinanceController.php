@@ -4,8 +4,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Ordinance;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class OrdinanceController extends Controller
 {
@@ -35,6 +36,7 @@ class OrdinanceController extends Controller
     // ================= STORE (AUTO ASSIGN USER_ID)
     public function store(Request $request)
     {
+        $user = User::find(auth()->id());
         $validated = $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
@@ -47,6 +49,7 @@ class OrdinanceController extends Controller
         ]);
 
         $ordinance = Ordinance::create([
+            'barangay' => $user->barangay,
             'title' => $request->title,
             'description' => $request->description,
             'category' => $request->category,
@@ -55,9 +58,6 @@ class OrdinanceController extends Controller
             'effectivity_date' => $request->effectivity_date,
             'approved_date' => $request->approved_date,
             'penalties' => $request->penalties,
-
-            // 🔥 OWNERSHIP
-            'user_id' => auth()->id(),
         ]);
 
         return response()->json([

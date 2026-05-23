@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Ordinance extends Model
 {
     protected $fillable = [
-        'user_id',
+        'barangay',
         'ordinance_number',
         'title',
         'description',
