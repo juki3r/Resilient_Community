@@ -5,6 +5,9 @@ use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
+use App\Http\Controllers\Api\EvacuationCenterController;
+use App\Http\Controllers\Api\EvacuationEventController;
+use App\Http\Controllers\Api\EvacuationResidentController;
 use App\Http\Controllers\Api\EventsController;
 use App\Http\Controllers\Api\IncidentController;
 use App\Http\Controllers\Api\NewsController;
@@ -95,6 +98,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('officials', OfficialController::class);
 
     Route::apiResource('events', EventsController::class);
+
+    // Centers
+    Route::get('/evacuation-centers', [EvacuationCenterController::class, 'index']);
+    Route::post('/evacuation-centers', [EvacuationCenterController::class, 'store']);
+    Route::put('/evacuation-centers/{id}', [EvacuationCenterController::class, 'update']);
+    Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
+
+    // Events
+    Route::get('/evacuation-events', [EvacuationEventController::class, 'index']);
+    Route::post('/evacuation-events', [EvacuationEventController::class, 'store']);
+    Route::put('/evacuation-events/{id}', [EvacuationEventController::class, 'update']);
+    Route::delete('/evacuation-events/{id}', [EvacuationEventController::class, 'destroy']);
+
+    // Residents
+    Route::get('/evacuation-residents', [EvacuationResidentController::class, 'index']);
+    Route::post('/evacuation-residents', [EvacuationResidentController::class, 'store']);
+    Route::put('/evacuation-residents/{id}', [EvacuationResidentController::class, 'update']);
+    Route::delete('/evacuation-residents/{id}', [EvacuationResidentController::class, 'destroy']);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
