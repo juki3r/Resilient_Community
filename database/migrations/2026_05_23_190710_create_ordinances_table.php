@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('ordinances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')
-                ->after('id')
-                ->nullable()
                 ->constrained()
                 ->nullOnDelete();
             $table->string('ordinance_number')->nullable();
