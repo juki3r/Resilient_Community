@@ -296,14 +296,17 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-
         $user = $request->user();
 
-        // logout flag
-        $user->is_logged_in = false;
-        $user->save();
+        if ($user) {
 
-        $request->user()->currentAccessToken()->delete();
+            $user->is_logged_in = false;
+            $user->save();
+
+            if ($user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
+        }
 
         return response()->json([
             'success' => true,
