@@ -18,19 +18,31 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string',
+            'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category' => 'nullable|string',
-            'image' => 'nullable|image',
-            'status' => 'nullable|string',
+            'image' => 'nullable|image|max:5120', // 5MB limit
+            'status' => 'nullable|in:draft,published',
         ]);
 
+        // =====================
+        // IMAGE UPLOAD
+        // =====================
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('news', 'public');
+            $path = $request->file('image')->store('news', 'public');
+            $validated['image'] = $path;
         }
 
+        // =====================
+        // DEFAULT VALUES
+        // =====================
         $validated['user_id'] = auth()->id();
-        $validated['published_at'] = now();
+        $validated['status'] = $validated['status'] ?? 'draft';
+
+        // only set published_at if actually published
+        $validated['published_at'] = $validated['status'] === 'published'
+            ? now()
+            : null;
 
         $news = News::create($validated);
 
