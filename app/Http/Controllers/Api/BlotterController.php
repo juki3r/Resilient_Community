@@ -31,6 +31,8 @@ class BlotterController extends Controller
             });
         }
 
+        dd($request->user());
+
         return $query->paginate(10);
     }
 
