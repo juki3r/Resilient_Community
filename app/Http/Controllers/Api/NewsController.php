@@ -9,10 +9,27 @@ use Illuminate\Http\Request;
 class NewsController extends Controller
 {
     // GET ALL
-    public function index()
+    public function index(Request $request)
     {
-        return News::latest()->paginate(10);
+        $search = $request->input('search');
+
+        $query = News::latest();
+
+        // SEARCH SUPPORT
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                    ->orWhere('content', 'like', "%$search%")
+                    ->orWhere('category', 'like', "%$search%");
+            });
+        }
+
+        // PAGINATION
+        $news = $query->paginate(10);
+
+        return response()->json($news);
     }
+
 
     // STORE
     public function store(Request $request)
