@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ordinances', function (Blueprint $table) {
             $table->id();
             $table->string('barangay');
-            $table->string('ordinance_number')->nullable();
+            $table->string('ordinance_number')->unique();
             $table->string('title');
             $table->text('description');
 

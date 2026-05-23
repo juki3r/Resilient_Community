@@ -41,27 +41,35 @@ class OrdinanceController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
+
         $validated = $request->validate([
             'title' => 'required|string',
             'description' => 'required|string',
             'category' => 'nullable|string',
-            'ordinance_number' => 'nullable|string',
             'status' => 'nullable|string',
             'effectivity_date' => 'nullable|date',
             'approved_date' => 'nullable|date',
             'penalties' => 'nullable|string',
         ]);
 
+        // 🔥 AUTO FORMAT: ORD-2026-001
+        $year = date('Y');
+
+        $count = Ordinance::whereYear('created_at', now()->year)->count() + 1;
+
+        $ordinanceNumber =
+            'ORD-' . $year . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+
         $ordinance = Ordinance::create([
             'barangay' => $user->barangay,
-            'title' => $request->title,
-            'description' => $request->description,
-            'category' => $request->category,
-            'ordinance_number' => $request->ordinance_number,
-            'status' => $request->status ?? 'active',
-            'effectivity_date' => $request->effectivity_date,
-            'approved_date' => $request->approved_date,
-            'penalties' => $request->penalties,
+            'ordinance_number' => $ordinanceNumber,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'category' => $validated['category'] ?? null,
+            'status' => $validated['status'] ?? 'active',
+            'effectivity_date' => $validated['effectivity_date'] ?? null,
+            'approved_date' => $validated['approved_date'] ?? null,
+            'penalties' => $validated['penalties'] ?? null,
         ]);
 
         return response()->json([
@@ -85,17 +93,12 @@ class OrdinanceController extends Controller
     // ================= UPDATE (USER OWNED ONLY)
     public function update(Request $request, $id)
     {
-        $user = auth()->user();
-
-        $ordinance = Ordinance::where('id', $id)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
+        $ordinance = Ordinance::findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'sometimes|string',
-            'description' => 'sometimes|string',
+            'title' => 'required|string',
+            'description' => 'required|string',
             'category' => 'nullable|string',
-            'ordinance_number' => 'nullable|string',
             'status' => 'nullable|string',
             'effectivity_date' => 'nullable|date',
             'approved_date' => 'nullable|date',
@@ -105,24 +108,34 @@ class OrdinanceController extends Controller
         $ordinance->update($validated);
 
         return response()->json([
-            'message' => 'Ordinance updated successfully',
+            'message' => 'Updated successfully',
             'data' => $ordinance
         ]);
     }
 
     // ================= DELETE (USER OWNED ONLY)
+    // public function destroy($id)
+    // {
+    //     $user = auth()->user();
+
+    //     $ordinance = Ordinance::where('id', $id)
+    //         ->where('barangay', $user->barangay)
+    //         ->firstOrFail();
+
+    //     $ordinance->delete();
+
+    //     return response()->json([
+    //         'message' => 'Ordinance deleted successfully'
+    //     ]);
+    // }
+
     public function destroy($id)
     {
-        $user = auth()->user();
-
-        $ordinance = Ordinance::where('id', $id)
-            ->where('barangay', $user->barangay)
-            ->firstOrFail();
-
+        $ordinance = Ordinance::findOrFail($id);
         $ordinance->delete();
 
         return response()->json([
-            'message' => 'Ordinance deleted successfully'
+            'message' => 'Deleted successfully'
         ]);
     }
 }
