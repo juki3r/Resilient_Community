@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Blotter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+
 
 class BlotterController extends Controller
 {
@@ -58,11 +60,30 @@ class BlotterController extends Controller
             'priority_level' => 'nullable|string',
         ]);
 
-        $validated['blotter_number'] = 'BLT-' . strtoupper(Str::random(8));
-        $validated['status'] = $validated['status'] ?? 'Pending';
-        $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
+        DB::transaction(function () use (&$validated, &$blotter) {
 
-        $blotter = Blotter::create($validated);
+            $year = date('Y');
+
+            // GET LAST NUMBER FOR THIS YEAR
+            $last = Blotter::whereYear('created_at', $year)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            $nextNumber = 1;
+
+            if ($last && $last->blotter_number) {
+                $parts = explode('-', $last->blotter_number);
+                $nextNumber = intval(end($parts)) + 1;
+            }
+
+            $validated['blotter_number'] =
+                'BLT-' . $year . '-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+
+            $validated['status'] = $validated['status'] ?? 'Pending';
+            $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
+
+            $blotter = Blotter::create($validated);
+        });
 
         return response()->json([
             'message' => 'Blotter created successfully',
