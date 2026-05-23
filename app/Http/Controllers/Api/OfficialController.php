@@ -31,15 +31,11 @@ class OfficialController extends Controller
     // STORE
     public function store(Request $request)
     {
-
         $user = auth()->user();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-
-        $barangay = Official::where('barangay', $user->barangay);
-
 
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
@@ -60,7 +56,12 @@ class OfficialController extends Controller
         ]);
 
         // =====================
-        // PHOTO UPLOAD (same style)
+        // AUTO ASSIGN BARANGAY (FIXED)
+        // =====================
+        $validated['barangay'] = $user->barangay;
+
+        // =====================
+        // PHOTO UPLOAD
         // =====================
         if ($request->hasFile('photo')) {
 
@@ -80,7 +81,7 @@ class OfficialController extends Controller
         }
 
         $validated['status'] = $validated['status'] ?? 'active';
-        $validated['barangay'] = $barangay;
+
         $official = Official::create($validated);
 
         return response()->json([
@@ -98,19 +99,66 @@ class OfficialController extends Controller
     // UPDATE
     public function update(Request $request, $id)
     {
-        $official = Official::findOrFail($id);
+        $user = auth()->user();
 
-        $data = $request->all();
-
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('officials', 'public');
-            $data['photo'] = $path;
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $official->update($data);
+        $official = Official::findOrFail($id);
+
+        $validated = $request->validate([
+            'full_name' => 'sometimes|required|string|max:255',
+            'gender' => 'nullable|string',
+            'position' => 'sometimes|required|string',
+            'committee' => 'nullable|string',
+            'address' => 'nullable|string',
+            'contact_number' => 'nullable|string',
+            'email' => 'nullable|email',
+
+            'term_start' => 'nullable|date',
+            'term_end' => 'nullable|date',
+
+            'status' => 'nullable|in:active,inactive,former',
+
+            'remarks' => 'nullable|string',
+            'photo' => 'nullable|image|max:5120',
+        ]);
+
+        // =====================
+        // FORCE BARANGAY FROM AUTH USER (SECURE)
+        // =====================
+        $validated['barangay'] = $user->barangay;
+
+        // =====================
+        // PHOTO REPLACE (SAFE VERSION)
+        // =====================
+        if ($request->hasFile('photo')) {
+
+            // delete old image
+            if ($official->photo && file_exists(public_path($official->photo))) {
+                unlink(public_path($official->photo));
+            }
+
+            $file = $request->file('photo');
+
+            $destination = public_path('uploads/officials');
+
+            if (!file_exists($destination)) {
+                mkdir($destination, 0777, true);
+            }
+
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            $file->move($destination, $filename);
+
+            $validated['photo'] = 'uploads/officials/' . $filename;
+        }
+
+        $official->update($validated);
 
         return response()->json([
-            'message' => 'Official updated',
+            'message' => 'Official updated successfully',
             'data' => $official
         ]);
     }
