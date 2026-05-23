@@ -14,7 +14,7 @@ class OrdinanceController extends Controller
     {
         $user = User::find(auth()->id());
 
-        $query = Ordinance::where('barangay', $user->baranngay);
+        $query = Ordinance::where('barangay', $user->barangay);
 
         if ($request->search) {
             $search = $request->search;
