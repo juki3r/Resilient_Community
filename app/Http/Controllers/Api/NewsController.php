@@ -13,21 +13,18 @@ class NewsController extends Controller
     {
         $search = $request->input('search');
 
-        $query = News::latest();
+        $query = News::where('user_id', $request->user()->id)
+            ->latest();
 
-        // SEARCH SUPPORT
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%$search%")
-                    ->orWhere('content', 'like', "%$search%")
-                    ->orWhere('category', 'like', "%$search%");
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%");
             });
         }
 
-        // PAGINATION
-        $news = $query->paginate(10);
-
-        return response()->json($news);
+        return $query->paginate(10);
     }
 
 
