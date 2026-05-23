@@ -22,20 +22,16 @@ class BlotterController extends Controller
             ->where('user_id', $request->user()->id)
             ->latest();
 
-        // SEARCH SUPPORT (IMPORTANT)
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('incident_type', 'like', "%$search%")
-                    ->orWhere('incident_location', 'like', "%$search%")
-                    ->orWhere('incident_details', 'like', "%$search%")
-                    ->orWhere('complainant_name', 'like', "%$search%");
+                $q->where('incident_type', 'like', "%{$search}%")
+                    ->orWhere('incident_location', 'like', "%{$search}%")
+                    ->orWhere('incident_details', 'like', "%{$search}%")
+                    ->orWhere('complainant_name', 'like', "%{$search}%");
             });
         }
 
-        // PAGINATION (MATCH FRONTEND)
-        $blotters = $query->paginate(10);
-
-        return response()->json($blotters);
+        return $query->paginate(10);
     }
 
     // =========================
