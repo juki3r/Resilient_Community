@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
+use App\Http\Controllers\Api\EventsController;
 use App\Http\Controllers\Api\IncidentController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\OfficialController;
@@ -92,6 +93,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('incidents', IncidentController::class);
 
     Route::apiResource('officials', OfficialController::class);
+
+    Route::apiResource('events', EventsController::class);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
