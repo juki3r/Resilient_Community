@@ -8,13 +8,22 @@ use Illuminate\Http\Request;
 
 class EvacuationCenterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
-        return EvacuationCenter::where('barangay', $user->barangay)
-            ->latest()
-            ->get();
+        $query = EvacuationCenter::where('barangay', $user->barangay)
+            ->orderBy('created_at', 'desc');
+
+        // search support (matches your React)
+        if ($request->search) {
+            $query->where('name', 'like', "%{$request->search}%")
+                ->orWhere('location', 'like', "%{$request->search}%");
+        }
+
+        return response()->json(
+            $query->paginate(10)
+        );
     }
 
     public function store(Request $request)
