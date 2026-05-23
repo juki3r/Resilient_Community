@@ -16,24 +16,26 @@ class BlotterController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
 
         $query = Blotter::with(['complainant', 'respondent'])
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', $user->id)
             ->latest();
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('incident_type', 'like', "%{$search}%")
-                    ->orWhere('incident_location', 'like', "%{$search}%")
-                    ->orWhere('incident_details', 'like', "%{$search}%")
-                    ->orWhere('complainant_name', 'like', "%{$search}%");
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('incident_type', 'like', "%{$request->search}%")
+                    ->orWhere('incident_location', 'like', "%{$request->search}%")
+                    ->orWhere('incident_details', 'like', "%{$request->search}%")
+                    ->orWhere('complainant_name', 'like', "%{$request->search}%");
             });
         }
 
-        dd($request->user());
-
-        // return $query->paginate(10);
+        return $query->paginate(10);
     }
 
     // =========================
