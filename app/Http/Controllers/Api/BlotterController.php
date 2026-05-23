@@ -32,7 +32,7 @@ class BlotterController extends Controller
         }
 
         // PAGINATION (MATCH FRONTEND)
-        $blotters = $query->paginate(1);
+        $blotters = $query->paginate(10);
 
         return response()->json($blotters);
     }
