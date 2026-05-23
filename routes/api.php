@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\IncidentController;
 use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\OfficialController;
 use App\Http\Controllers\Api\OrdinanceController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
@@ -89,6 +90,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/ordinances/{id}', [OrdinanceController::class, 'destroy']);
 
     Route::apiResource('incidents', IncidentController::class);
+
+    Route::apiResource('officials', OfficialController::class);
 });
 
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
