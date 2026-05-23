@@ -103,6 +103,9 @@ class AuthController extends Controller
             ], 401);
         }
 
+
+
+
         // Optional: account approval check
         if ($user->phone_verified && !$user->granted) {
             return response()->json([
@@ -148,11 +151,24 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // =========================
+        // PREVENT MULTIPLE LOGIN
+        // =========================
+        if ($user->is_logged_in) {
+            return response()->json([
+                'message' => 'This account is already logged in on another device.'
+            ], 403);
+        }
+
         // Delete old tokens (optional)
         $user->tokens()->delete();
 
         // Create new token
         $token = $user->createToken('auth_token')->plainTextToken;
+
+
+        $user->is_logged_in = true;
+        $user->save();
 
         return response()->json([
             'success' => true,
@@ -280,6 +296,13 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+
+        $user = $request->user();
+
+        // logout flag
+        $user->is_logged_in = false;
+        $user->save();
+
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
