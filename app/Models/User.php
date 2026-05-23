@@ -38,6 +38,7 @@ class User extends Authenticatable
         'otp_code',
         'otp_sent_at',
         'otp_expires_at',
+        'is_logged_in',
     ];
 
     /**
