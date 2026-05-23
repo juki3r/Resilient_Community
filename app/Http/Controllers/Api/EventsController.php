@@ -13,17 +13,17 @@ class EventsController extends Controller
     {
         $user = auth()->user();
 
-        $query = Event::query()
-            ->where('barangay', $user->barangay)
+        $query = Event::where('barangay', $user->barangay)
             ->orderBy('event_date', 'asc');
 
         if ($request->search) {
             $query->where('title', 'like', "%{$request->search}%");
         }
 
-        return response()->json($query->paginate(10));
+        return response()->json([
+            'data' => $query->get()
+        ]);
     }
-
     // ================= STORE =================
     public function store(Request $request)
     {
@@ -61,7 +61,6 @@ class EventsController extends Controller
 
         return response()->json($event);
     }
-
     // ================= UPDATE =================
     public function update(Request $request, $id)
     {
