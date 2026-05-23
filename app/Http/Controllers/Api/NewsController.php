@@ -63,7 +63,30 @@ class NewsController extends Controller
     {
         $news = News::findOrFail($id);
 
-        $news->update($request->all());
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'content' => 'sometimes|string',
+            'category' => 'nullable|string',
+            'status' => 'nullable|in:draft,published',
+            'image' => 'nullable|image|max:5120',
+        ]);
+
+        // =====================
+        // IMAGE UPDATE
+        // =====================
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('news', 'public');
+            $validated['image'] = $path;
+        }
+
+        // =====================
+        // PUBLISHED LOGIC
+        // =====================
+        if (isset($validated['status']) && $validated['status'] === 'published') {
+            $validated['published_at'] = now();
+        }
+
+        $news->update($validated);
 
         return response()->json([
             'message' => 'News updated successfully',
