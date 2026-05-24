@@ -39,6 +39,8 @@ class ResidentController extends Controller
     // =========================
     public function store(Request $request)
     {
+        $user = auth()->user();
+
         $validated = $request->validate([
             // IDENTITY
             'resident_code' => 'nullable|string|unique:residents,resident_code',
@@ -153,7 +155,8 @@ class ResidentController extends Controller
         if (!empty($request->birth_date)) {
             $validated['age'] = now()->diffInYears($request->birth_date);
         }
-
+        $validated['barangay'] = $user->barangay;
+        $validated['created_by'] = $user->id;
         $resident = Resident::create($validated);
 
         return response()->json([
