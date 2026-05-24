@@ -43,6 +43,8 @@ class EvacuationCenterController extends Controller
             'capacity' => 'nullable|integer|min:0',
 
             'contact_person' => 'nullable|string|max:255',
+
+            'event_type' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
 
             'start_date' => 'nullable|date',
@@ -102,7 +104,7 @@ class EvacuationCenterController extends Controller
 
             'contact_person' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
-
+            'event_type' => 'nullable|string|max:255',
             'start_date' => 'nullable|date',
             'start_time' => 'nullable',
             'end_date' => 'nullable|date|after_or_equal:start_date',
