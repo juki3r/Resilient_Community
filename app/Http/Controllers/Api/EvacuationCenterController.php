@@ -17,15 +17,19 @@ class EvacuationCenterController extends Controller
             ->orderBy('created_at', 'desc');
 
         // SEARCH
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->search}%")
-                    ->orWhere('location', 'like', "%{$request->search}%")
-                    ->orWhere('contact_person', 'like', "%{$request->search}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhere('contact_person', 'like', "%{$search}%");
             });
         }
 
-        return response()->json($query->paginate(10));
+        return response()->json(
+            $query->paginate(10)
+        );
     }
 
     // ================= STORE =================
@@ -36,15 +40,14 @@ class EvacuationCenterController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'capacity' => 'nullable|integer',
+            'capacity' => 'nullable|integer|min:0',
 
             'contact_person' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
 
-            // evacuation timing
             'start_date' => 'nullable|date',
             'start_time' => 'nullable',
-            'end_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'end_time' => 'nullable',
 
             'description' => 'nullable|string',
@@ -52,18 +55,23 @@ class EvacuationCenterController extends Controller
             'status' => 'nullable|in:inactive,active,ongoing,closed',
         ]);
 
-        // AUTO ASSIGN BARANGAY
         $validated['barangay'] = $user->barangay;
 
-        // DEFAULT STATUS LOGIC
-        if (!isset($validated['status'])) {
-            $validated['status'] = $validated['start_date'] ? 'ongoing' : 'inactive';
+        // DEFAULT STATUS LOGIC (CLEAN)
+        if (empty($validated['status'])) {
+            if (!empty($validated['start_date']) && empty($validated['end_date'])) {
+                $validated['status'] = 'ongoing';
+            } elseif (!empty($validated['end_date'])) {
+                $validated['status'] = 'closed';
+            } else {
+                $validated['status'] = 'inactive';
+            }
         }
 
         $center = EvacuationCenter::create($validated);
 
         return response()->json([
-            'message' => 'Evacuation center saved successfully',
+            'message' => 'Evacuation center created successfully',
             'data' => $center
         ], 201);
     }
@@ -90,14 +98,14 @@ class EvacuationCenterController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
-            'capacity' => 'nullable|integer',
+            'capacity' => 'nullable|integer|min:0',
 
             'contact_person' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
 
             'start_date' => 'nullable|date',
             'start_time' => 'nullable',
-            'end_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'end_time' => 'nullable',
 
             'description' => 'nullable|string',
@@ -105,13 +113,13 @@ class EvacuationCenterController extends Controller
             'status' => 'nullable|in:inactive,active,ongoing,closed',
         ]);
 
-        // AUTO STATUS LOGIC (SMART)
-        if (!empty($validated['start_date']) && empty($validated['end_date'])) {
-            $validated['status'] = 'ongoing';
-        }
-
+        /**
+         * SMART STATUS LOGIC
+         */
         if (!empty($validated['end_date'])) {
             $validated['status'] = 'closed';
+        } elseif (!empty($validated['start_date']) && empty($validated['end_date'])) {
+            $validated['status'] = 'ongoing';
         }
 
         $center->update($validated);
