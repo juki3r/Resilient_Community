@@ -321,6 +321,74 @@ class AppUserController extends Controller
         ]);
     }
 
+    /**
+     * ================================
+     * SEND OTP (for manual resend from mobile app)
+     * Endpoint: POST /api/send-otp
+     * Body: { "phone": "09XXXXXXXXX" }
+     * ================================
+     */
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^09\d{9}$/'
+            ],
+        ], [
+            'phone.regex' => 'Phone number must start with 09 and be 11 digits.',
+        ]);
+
+        // Find user
+        $user = User::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Phone number not registered'
+            ], 404);
+        }
+
+        // Prevent spam: reuse existing OTP if sent within last 60 seconds
+        if (
+            $user->otp_sent_at &&
+            Carbon::parse($user->otp_sent_at)->diffInSeconds(now()) < 60
+        ) {
+            return response()->json([
+                'message' => 'Please wait before requesting another OTP'
+            ], 429);
+        }
+
+        // Generate new 6-digit OTP
+        $otp = rand(100000, 999999);
+
+        // Save OTP
+        $user->update([
+            'otp_code' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinutes(5),
+            'otp_sent_at' => now(),
+        ]);
+
+        // Send SMS
+        $response = Http::withHeaders([
+            'X-API-KEY' => 'qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY',
+        ])->post('https://carlesppo.com/api/send-sms-api', [
+            'phone_number' => $user->phone,
+            'message' => "Your OTP is: {$otp}",
+        ]);
+
+        // Optional: Check if SMS API failed
+        if (!$response->successful()) {
+            return response()->json([
+                'message' => 'Failed to send OTP'
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'OTP sent successfully'
+        ]);
+    }
+
 
     /**
      * LOGOUT (REVOKE TOKEN)
