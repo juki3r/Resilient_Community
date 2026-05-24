@@ -143,7 +143,7 @@ class AppUserController extends Controller
             'otp' => ['required'],
         ]);
 
-        $user = User::where('phone', $request->phone)->first();
+        $user = MobileUser::where('phone', $request->phone)->first();
 
         if (!$user) {
             return response()->json([
@@ -177,7 +177,7 @@ class AppUserController extends Controller
         ]);
 
         // login token after verification
-        $token = $user->createToken('daanbanwa-mobile')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'OTP verified successfully',
