@@ -128,6 +128,40 @@ class AppUserController extends Controller
 
         $token = $mobileuser->createToken('auth_token')->plainTextToken;
 
+        if (!$mobileuser->phone_verified) {
+            // check cooldown (avoid spam)
+            if ($mobileuser->otp_sent_at && Carbon::parse($mobileuser->otp_sent_at)->diffInSeconds(now()) < 60) {
+                $otp = $mobileuser->otp_code; // reuse existing OTP
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'user' => $mobileuser,
+                ], 200);
+            } else {
+                $otp = rand(100000, 999999);
+
+                $mobileuser->update([
+                    'otp_code' => $otp,
+                    'otp_expires_at' => Carbon::now()->addMinutes(5),
+                    'otp_sent_at' => now(),
+                ]);
+
+                // send SMS
+                Http::withHeaders([
+                    'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $mobileuser->phone,
+                    'message' => "Your OTP is: $otp"
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'user' => $mobileuser,
+                ], 200);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
