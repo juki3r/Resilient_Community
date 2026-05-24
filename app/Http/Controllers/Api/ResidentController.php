@@ -13,7 +13,11 @@ class ResidentController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $query = Resident::query();
+        $user = auth()->user();
+
+        $query = Resident::where('barangay', $user->barangay)
+            ->orderBy('created_at', 'desc');
+        // $query = Resident::query();
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
