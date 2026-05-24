@@ -139,91 +139,188 @@ class AppUserController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate([
-            'phone' => 'required',
-            'otp' => 'required|digits:6'
+            'phone' => ['required'],
+            'otp' => ['required'],
         ]);
 
-        $user = MobileUser::where('phone', $request->phone)->first();
+        $user = User::where('phone', $request->phone)->first();
 
         if (!$user) {
             return response()->json([
-                'success' => false,
-                'message' => 'Mobile user not found'
+                'message' => 'User not found'
             ], 404);
         }
 
-        // ✅ expiry check (ONLY ONE SOURCE OF TRUTH)
-        if (!$user->otp_expires_at || now()->isAfter($user->otp_expires_at)) {
+        if (!$user->otp_code) {
             return response()->json([
-                'success' => false,
+                'message' => 'No OTP requested'
+            ], 400);
+        }
+
+        if (now()->gt($user->otp_expires_at)) {
+            return response()->json([
                 'message' => 'OTP expired'
             ], 400);
         }
 
-        // ✅ safe compare
-        if ((string)$user->otp_code !== (string)$request->otp) {
+        if ($user->otp_code !== $request->otp) {
             return response()->json([
-                'success' => false,
                 'message' => 'Invalid OTP'
             ], 401);
         }
 
+        // ✅ mark verified
         $user->update([
             'phone_verified' => true,
             'otp_code' => null,
             'otp_expires_at' => null,
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // login token after verification
+        $token = $user->createToken('daanbanwa-mobile')->plainTextToken;
 
         return response()->json([
-            'success' => true,
             'message' => 'OTP verified successfully',
             'token' => $token,
-            'user' => $user
+            'user' => $user,
         ]);
     }
-    public function resendOtp(Request $request)
+
+    /* ================================
+        1. SEND FORGOT OTP
+    ================================= */
+    public function sendForgotOtp(Request $request)
     {
         $request->validate([
-            'phone' => 'required'
+            'phone' => 'required|string'
         ]);
 
-        $user = MobileUser::where('phone', $request->phone)->first();
+        $user = User::where('phone', $request->phone)->first();
 
         if (!$user) {
             return response()->json([
-                'success' => false,
-                'message' => 'Mobile user not found'
+                'message' => 'Please register to continue'
             ], 404);
         }
 
+        // generate 6 digit OTP
         $otp = rand(100000, 999999);
 
         $user->update([
             'otp_code' => $otp,
-            'otp_expires_at' => now()->addMinutes(5),
+            'otp_expires_at' => Carbon::now()->addMinutes(5),
         ]);
 
-        $response = Http::withHeaders([
-            'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY",
+        // SEND SMS (your API)
+        Http::withHeaders([
+            'X-API-KEY' => "qHafeGIG2dWbb5QEKdW1jR2J0rhNbIr0wjeyfkeY"
         ])->post('https://carlesppo.com/api/send-sms-api', [
             'phone_number' => $user->phone,
-            'message' => "Your OTP is: $otp"
+            'message' => "Your reset OTP is: $otp"
         ]);
-
-        if (!$response->successful()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to send OTP'
-            ], 500);
-        }
 
         return response()->json([
-            'success' => true,
-            'message' => 'OTP resent successfully'
+            'message' => 'OTP sent successfully'
         ]);
     }
+
+    /* ================================
+        2. VERIFY RESET OTP
+    ================================= */
+    public function verifyResetOtp(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'otp'   => 'required|string',
+        ]);
+
+        $user = User::where('phone', $request->phone)->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        // Convert both values to string to avoid int vs string mismatch
+        if ((string) $user->otp_code !== (string) $request->otp) {
+            return response()->json([
+                'message' => 'Invalid OTP'
+            ], 401);
+        }
+
+        // Handle null expiration safely
+        if (!$user->otp_expires_at) {
+            return response()->json([
+                'message' => 'OTP expiration not set'
+            ], 401);
+        }
+
+        // Ensure Carbon instance
+        if (now()->gt(Carbon::parse($user->otp_expires_at))) {
+            return response()->json([
+                'message' => 'OTP expired'
+            ], 401);
+        }
+
+        // Clear OTP after successful verification (optional but recommended)
+        $user->update([
+            'otp_code' => null,
+            'otp_expires_at' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'OTP verified',
+            'reset_token' => encrypt($user->id),
+        ]);
+    }
+
+    /* ================================
+        3. RESET PASSWORD
+    ================================= */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'reset_token' => 'required',
+            'password' => 'required|min:6'
+        ]);
+
+        $userId = decrypt($request->reset_token);
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid token'], 401);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+            'otp_code' => null,
+            'otp_expires_at' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'Password reset successful'
+        ]);
+    }
+
+    public function saveFcmToken(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'token' => 'required',
+        ]);
+
+        User::where('id', $request->user_id)
+            ->update([
+                'fcm_token' => $request->token
+            ]);
+
+        return response()->json([
+            'message' => 'FCM token saved'
+        ]);
+    }
+
 
     /**
      * LOGOUT (REVOKE TOKEN)

@@ -36,8 +36,14 @@ Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
 //Mobile app login and register
 Route::post('/appuser/login', [AppUserController::class, 'login']);
 Route::post('/appuser/register', [AppUserController::class, 'register']);
-Route::post('/appuser/verify-otp', [AuthController::class, 'verifyOtp']);
-Route::post('/appuser/resend-otp', [AuthController::class, 'resendOtp']);
+Route::post('/appuser/verify-otp', [AppUserController::class, 'verifyOtp']);
+Route::post('/appuser/send-forgot-otp', [AppUserController::class, 'sendForgotOtp']);
+Route::post('/appuser/verify-reset-otp', [AppUserController::class, 'verifyResetOtp']);
+Route::post('/appuser/reset-password', [AppUserController::class, 'resetPassword']);
+Route::post('/appuser/save-fcm-token', [AppUserController::class, 'saveFcmToken']);
+Route::post('/appuser/send-otp', [AppUserController::class, 'sendOtp']);
+
+
 
 
 Route::middleware('auth:sanctum')->get('/me/granted-status', [AuthController::class, 'myGrantedStatus']);
