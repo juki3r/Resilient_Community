@@ -11,15 +11,15 @@ class ResidentSeeder extends Seeder
     public function run(): void
     {
         $barangays = [
-            'Punta',
+            // 'Punta',
             'Poblacion',
-            'Barosbos',
-            'Granada',
-            'Asluman',
-            'Bancal',
-            'Guinticgan',
-            'Tarong',
-            'Nalumsan'
+            // 'Barosbos',
+            // 'Granada',
+            // 'Asluman',
+            // 'Bancal',
+            // 'Guinticgan',
+            // 'Tarong',
+            // 'Nalumsan'
         ];
 
         $firstNames = [
@@ -71,7 +71,7 @@ class ResidentSeeder extends Seeder
             'Call Center Agent'
         ];
 
-        for ($i = 1; $i <= 50; $i++) {
+        for ($i = 1; $i <= 1000; $i++) {
 
             $first = $firstNames[array_rand($firstNames)];
             $last = $lastNames[array_rand($lastNames)];
@@ -99,9 +99,9 @@ class ResidentSeeder extends Seeder
                 'place_of_birth' => 'Cebu City',
                 'birth_certificate_no' => 'BC-' . rand(100000, 999999),
 
-                'region' => 'Region VII',
-                'province' => 'Cebu',
-                'city_municipality' => 'Cebu City',
+                'region' => 'Region VI',
+                'province' => 'Iloilo',
+                'city_municipality' => 'Carles',
                 'barangay' => $barangays[array_rand($barangays)],
                 'purok_zone' => 'Purok ' . rand(1, 7),
                 'street_address' => 'Sitio ' . rand(1, 20),
