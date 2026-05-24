@@ -17,28 +17,22 @@ return new class extends Migration
                 ->constrained()
                 ->onDelete('cascade');
 
-            $table->string('first_name');
-            $table->string('middle_name')->nullable();
-            $table->string('last_name');
-
+            $table->string('full_name');
+            $table->string('province');
+            $table->string('municipality');
+            $table->string('barangay');
             $table->string('purok')->nullable();
             $table->boolean('granted')->default(false);
-
             $table->string('email')->nullable()->unique();
             $table->string('phone')->unique();
             $table->boolean('phone_verified')->default(false);
-
             $table->text('fcm_token')->nullable();
-
             $table->string('password');
-
             $table->string('otp_code', 10)->nullable();
             $table->timestamp('otp_expires_at')->nullable();
             $table->timestamp('otp_sent_at')->nullable();
-
             $table->string('role')->default('resident');
             $table->string('barangay');
-
             $table->rememberToken();
             $table->timestamps();
         });

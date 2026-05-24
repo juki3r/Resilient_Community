@@ -21,10 +21,11 @@ class AppUserController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'full_name' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
+            'municipality' => 'required|string|max:255',
+            'barangay' => 'required|string|max:255',
             'phone' => 'required|unique:mobile_users,phone|min:11|max:11',
-            'barangay' => 'required',
             'password' => 'required|min:8|confirmed',
         ]);
 
@@ -47,14 +48,16 @@ class AppUserController extends Controller
 
         $mobileuser = MobileUser::create([
             'user_id' => $barangay_belongs,
-            'first_name' => $request->firstname,
-            'last_name' => $request->lastname,
+            'full_name' => $request->full_name,
+            'province' => $request->province,
+            'municipality' => $request->municipality,
+            'barangay' => ucwords(strtolower($request->barangay)),
             'phone' => $request->phone,
             'password' => bcrypt($request->password),
             'role' => 'resident',
             'phone_verified' => false,
             'granted' => false,
-            'barangay' => ucwords(strtolower($request->barangay)),
+
         ]);
 
         // ✅ OTP generate
