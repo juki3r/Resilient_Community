@@ -8,48 +8,198 @@ use Illuminate\Http\Request;
 
 class ResidentController extends Controller
 {
-    // PAGINATED LIST (SERVER SIDE)
+    // =========================
+    // LIST (SEARCH + PAGINATION)
+    // =========================
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
-        $search = $request->get('search');
-
         $query = Resident::query();
 
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%$search%")
-                    ->orWhere('last_name', 'like', "%$search%");
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('first_name', 'like', "%{$request->search}%")
+                    ->orWhere('last_name', 'like', "%{$request->search}%")
+                    ->orWhere('household_number', 'like', "%{$request->search}%")
+                    ->orWhere('barangay', 'like', "%{$request->search}%")
+                    ->orWhere('resident_code', 'like', "%{$request->search}%");
             });
         }
 
         return response()->json(
-            $query->latest()->paginate($perPage)
+            $query->latest()->paginate(10)
         );
     }
 
-    // SHOW SINGLE RESIDENT (PROFILE PAGE)
+    // =========================
+    // STORE (FULL VALIDATION)
+    // =========================
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            // IDENTITY
+            'resident_code' => 'nullable|string|unique:residents,resident_code',
+            'household_number' => 'required|string',
+            'family_number' => 'nullable|string',
+
+            // PERSONAL
+            'first_name' => 'required|string',
+            'middle_name' => 'nullable|string',
+            'last_name' => 'required|string',
+            'suffix' => 'nullable|string',
+            'alias' => 'nullable|string',
+            'gender' => 'required|string',
+            'civil_status' => 'required|string',
+            'nationality' => 'nullable|string',
+            'religion' => 'nullable|string',
+            'ethnicity' => 'nullable|string',
+
+            // BIRTH
+            'birth_date' => 'nullable|date',
+            'age' => 'nullable|integer',
+            'place_of_birth' => 'nullable|string',
+            'birth_certificate_no' => 'nullable|string',
+
+            // ADDRESS
+            'region' => 'nullable|string',
+            'province' => 'nullable|string',
+            'city_municipality' => 'nullable|string',
+            'barangay' => 'required|string',
+            'purok_zone' => 'required|string',
+            'street_address' => 'nullable|string',
+            'full_address_text' => 'nullable|string',
+
+            // HOUSEHOLD
+            'household_head' => 'boolean',
+            'relationship_to_head' => 'nullable|string',
+            'household_role' => 'nullable|string',
+            'number_of_household_members' => 'nullable|integer',
+            'housing_type' => 'nullable|string',
+
+            // CONTACT
+            'mobile_number' => 'nullable|string',
+            'telephone_number' => 'nullable|string',
+            'email' => 'nullable|email',
+
+            'emergency_contact_name' => 'nullable|string',
+            'emergency_contact_number' => 'nullable|string',
+            'emergency_contact_relationship' => 'nullable|string',
+
+            // SOCIO ECONOMIC
+            'employment_status' => 'nullable|string',
+            'occupation' => 'nullable|string',
+            'monthly_income' => 'nullable|numeric',
+            'source_of_income' => 'nullable|string',
+            'skills' => 'nullable|string',
+            'educational_attainment' => 'nullable|string',
+            'school_status' => 'nullable|string',
+
+            // HEALTH
+            'blood_type' => 'nullable|string',
+            'disability_status' => 'boolean',
+            'disability_type' => 'nullable|string',
+            'medical_conditions' => 'nullable|string',
+            'vaccination_status' => 'nullable|string',
+            'philhealth_number' => 'nullable|string',
+
+            // GOV IDS
+            'sss_number' => 'nullable|string',
+            'gsis_number' => 'nullable|string',
+            'tin_number' => 'nullable|string',
+            'voters_id_number' => 'nullable|string',
+            'pwd_id_number' => 'nullable|string',
+            'senior_citizen_id_number' => 'nullable|string',
+
+            // RESIDENCY
+            'residency_status' => 'nullable|string',
+            'date_of_residency' => 'nullable|date',
+            'years_of_residency' => 'nullable|integer',
+            'previous_address' => 'nullable|string',
+
+            // FLAGS
+            'is_4ps_beneficiary' => 'boolean',
+            'is_indigent' => 'boolean',
+            'is_uct_beneficiary' => 'boolean',
+            'is_voter' => 'boolean',
+            'is_sk_voter' => 'boolean',
+            'is_late_registration' => 'boolean',
+            'status' => 'nullable|string',
+
+            // DOCUMENTS
+            'barangay_clearance_status' => 'nullable|string',
+            'cedula_number' => 'nullable|string',
+            'police_clearance_status' => 'nullable|string',
+            'residency_certificate_status' => 'nullable|string',
+
+            // SYSTEM
+            'photo_url' => 'nullable|string',
+            'signature_url' => 'nullable|string',
+            'remarks' => 'nullable|string',
+            'tags' => 'nullable|string',
+
+            'created_by' => 'nullable|integer',
+            'updated_by' => 'nullable|integer',
+        ]);
+
+        // AUTO GENERATE CODE IF EMPTY
+        if (!$request->resident_code) {
+            $validated['resident_code'] = 'RES-' . date('Y') . '-' . rand(100000, 999999);
+        }
+
+        // AUTO AGE
+        if (!empty($request->birth_date)) {
+            $validated['age'] = now()->diffInYears($request->birth_date);
+        }
+
+        $resident = Resident::create($validated);
+
+        return response()->json([
+            'message' => 'Resident created successfully',
+            'data' => $resident
+        ], 201);
+    }
+
+    // =========================
+    // SHOW
+    // =========================
     public function show($id)
     {
         return Resident::findOrFail($id);
     }
 
-    public function store(Request $request)
-    {
-        return Resident::create($request->all());
-    }
-
+    // =========================
+    // UPDATE (FULL SAFE UPDATE)
+    // =========================
     public function update(Request $request, $id)
     {
         $resident = Resident::findOrFail($id);
-        $resident->update($request->all());
 
-        return $resident;
+        $validated = $request->validate([
+            'household_number' => 'sometimes|required|string',
+            'first_name' => 'sometimes|required|string',
+            'last_name' => 'sometimes|required|string',
+            'gender' => 'sometimes|required|string',
+            'civil_status' => 'sometimes|required|string',
+            'barangay' => 'sometimes|required|string',
+            'purok_zone' => 'sometimes|required|string',
+        ]);
+
+        $resident->update($validated);
+
+        return response()->json([
+            'message' => 'Updated successfully',
+            'data' => $resident
+        ]);
     }
 
+    // =========================
+    // DELETE
+    // =========================
     public function destroy($id)
     {
-        Resident::destroy($id);
-        return response()->json(['message' => 'Deleted']);
+        Resident::findOrFail($id)->delete();
+
+        return response()->json([
+            'message' => 'Deleted successfully'
+        ]);
     }
 }

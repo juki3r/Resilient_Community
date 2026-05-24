@@ -55,6 +55,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('announcements', AnnouncementController::class);
 
 
+    //Residents
+    Route::get('/residents', [ResidentController::class, 'index']);
+    Route::post('/residents', [ResidentController::class, 'store']);
+    Route::get('/residents/{id}', [ResidentController::class, 'show']);
+    Route::put('/residents/{id}', [ResidentController::class, 'update']);
+    Route::delete('/residents/{id}', [ResidentController::class, 'destroy']);
+
+
     //Certificates
     Route::post('/certificates', [CertificateController::class, 'store']);
     Route::get('/certificates', [CertificateController::class, 'index']);
@@ -112,7 +120,7 @@ Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
     ]);
 });
 
-Route::apiResource('residents', ResidentController::class);
+
 
 
 
