@@ -144,7 +144,7 @@ class AppUserController extends Controller
                 $otp = $mobileuser->otp_code; // reuse existing OTP
                 return response()->json([
                     'success' => true,
-                    'message' => 'Login successful',
+                    'message' => 'Please verify phone number!',
                     'user' => $mobileuser,
                 ], 200);
             } else {
@@ -166,7 +166,7 @@ class AppUserController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Login successful',
+                    'message' => 'Please verify phone number!',
                     'user' => $mobileuser,
                 ], 200);
             }
