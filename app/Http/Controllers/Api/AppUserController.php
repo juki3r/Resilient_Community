@@ -195,7 +195,7 @@ class AppUserController extends Controller
             'phone' => 'required|string'
         ]);
 
-        $user = User::where('phone', $request->phone)->first();
+        $user = MobileUser::where('phone', $request->phone)->first();
 
         if (!$user) {
             return response()->json([
@@ -234,7 +234,7 @@ class AppUserController extends Controller
             'otp'   => 'required|string',
         ]);
 
-        $user = User::where('phone', $request->phone)->first();
+        $user = MobileUser::where('phone', $request->phone)->first();
 
         if (!$user) {
             return response()->json([
@@ -287,7 +287,7 @@ class AppUserController extends Controller
 
         $userId = decrypt($request->reset_token);
 
-        $user = User::find($userId);
+        $user = MobileUser::find($userId);
 
         if (!$user) {
             return response()->json(['message' => 'Invalid token'], 401);
@@ -311,7 +311,7 @@ class AppUserController extends Controller
             'token' => 'required',
         ]);
 
-        User::where('id', $request->user_id)
+        MobileUser::where('id', $request->user_id)
             ->update([
                 'fcm_token' => $request->token
             ]);
@@ -341,7 +341,7 @@ class AppUserController extends Controller
         ]);
 
         // Find user
-        $user = User::where('phone', $request->phone)->first();
+        $user = MobileUser::where('phone', $request->phone)->first();
 
         if (!$user) {
             return response()->json([
