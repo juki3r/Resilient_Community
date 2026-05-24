@@ -58,6 +58,7 @@ class EvacuationCenterController extends Controller
         ]);
 
         $validated['barangay'] = $user->barangay;
+        $validated['created_by'] = $user->id;
 
         // DEFAULT STATUS LOGIC (CLEAN)
         if (empty($validated['status'])) {
