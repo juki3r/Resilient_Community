@@ -11,8 +11,8 @@ class ResidentSeeder extends Seeder
     public function run(): void
     {
         $barangays = [
-            // 'Punta',
-            'Poblacion',
+            'Punta',
+            // 'Poblacion',
             // 'Barosbos',
             // 'Granada',
             // 'Asluman',
