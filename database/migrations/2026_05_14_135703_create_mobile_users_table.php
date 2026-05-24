@@ -32,7 +32,6 @@ return new class extends Migration
             $table->timestamp('otp_expires_at')->nullable();
             $table->timestamp('otp_sent_at')->nullable();
             $table->string('role')->default('resident');
-            $table->string('barangay');
             $table->rememberToken();
             $table->timestamps();
         });
