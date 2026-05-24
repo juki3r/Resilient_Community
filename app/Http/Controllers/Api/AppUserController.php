@@ -126,7 +126,17 @@ class AppUserController extends Controller
             ], 401);
         }
 
-        $token = $mobileuser->createToken('auth_token')->plainTextToken;
+        if ($mobileuser->is_logged_in) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Account already logged in!',
+                'errors' => [
+                    'phone' => ['Duplicate logged in is prohibited']
+                ]
+            ], 404);
+        }
+
+
 
         if (!$mobileuser->phone_verified) {
             // check cooldown (avoid spam)
@@ -161,6 +171,8 @@ class AppUserController extends Controller
                 ], 200);
             }
         }
+
+        $token = $mobileuser->createToken('auth_token')->plainTextToken;
 
         $mobileuser->is_logged_in = true;
         $mobileuser->save();
