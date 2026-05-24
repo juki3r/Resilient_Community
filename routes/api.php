@@ -53,6 +53,9 @@ Route::middleware('auth:sanctum')->get('/me/granted-status', [AuthController::cl
 Route::middleware('auth:sanctum')->group(function () {
 
     //Logout
+    Route::post('/appuser/logout', [AppUserController::class, 'logout']);
+
+    //Logout
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user();

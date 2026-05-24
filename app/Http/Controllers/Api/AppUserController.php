@@ -162,6 +162,9 @@ class AppUserController extends Controller
             }
         }
 
+        $mobileuser->is_logged_in = true;
+        $mobileuser->save();
+
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
@@ -172,6 +175,9 @@ class AppUserController extends Controller
 
     public function verifyOtp(Request $request)
     {
+
+        $mobileuser = MobileUser::where('phone', $request->phone)->first();
+
         $request->validate([
             'phone' => ['required'],
             'otp' => ['required'],
@@ -209,6 +215,9 @@ class AppUserController extends Controller
             'otp_code' => null,
             'otp_expires_at' => null,
         ]);
+
+        $mobileuser->is_logged_in = true;
+        $mobileuser->save();
 
         // login token after verification
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -429,14 +438,17 @@ class AppUserController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user(); // should resolve MobileUser via guard
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully'
-        ]);
+        if ($user) {
+            $user->is_logged_in = false;
+            $user->save();
+
+            $user->currentAccessToken()->delete();
+        }
+
+        return response()->json(['message' => 'Logged out']);
     }
-
 
 
 
