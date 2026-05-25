@@ -65,7 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //News
     Route::get('/appuser/news', [NewsController::class, 'index_appuser']);
     Route::post('/appuser/news/{id}/view', [NewsController::class, 'markViewed']);
-    Route::get('/appuser/unreadNews', [NewsController::class, 'unreadNews']);
+    Route::get('/appuser/unread-news', [NewsController::class, 'unreadNews']);
 
     Route::post('/appuser/requests', [CertificateController::class, 'store_appuser']);
     Route::get('/appuser/my-requests', [CertificateController::class, 'index_appuser']);
