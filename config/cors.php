@@ -1,5 +1,27 @@
 <?php
 
+// return [
+
+//     'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+//     'allowed_methods' => ['*'],
+
+//     'allowed_origins' => [
+//         'https://ajcpisonet.com',
+//         'http://localhost:5173',
+//     ],
+
+//     'allowed_origins_patterns' => [],
+
+//     'allowed_headers' => ['*'],
+
+//     'exposed_headers' => [],
+
+//     'max_age' => 0,
+
+//     'supports_credentials' => true,
+// ];
+
 return [
 
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
@@ -7,11 +29,10 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://ajcpisonet.com',
         'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'https://ajcpisonet.com',
     ],
-
-    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
@@ -19,5 +40,5 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true,
+    'supports_credentials' => false, // 🔥 IMPORTANT FIX
 ];
