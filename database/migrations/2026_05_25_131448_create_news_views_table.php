@@ -19,7 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->foreignId('user_id')
-                ->constrained()
+                ->constrained('mobile_users')
                 ->onDelete('cascade');
 
             $table->timestamp('viewed_at')->nullable();
