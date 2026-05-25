@@ -3,41 +3,42 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Certificate;
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Faker\Factory as Faker;
 
-class CertificateSeeder extends Seeder
+class CertificatesSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         $faker = Faker::create();
 
-        $userIds = User::pluck('id')->toArray();
-
-        for ($i = 0; $i < 1000; $i++) {
-            Certificate::create([
-                'user_id' => $faker->randomElement($userIds),
-
-                'full_name' => $faker->name, // ✅ REALISTIC NAME
-
-                'age' => $faker->numberBetween(18, 75),
+        for ($i = 0; $i < 20; $i++) {
+            DB::table('certificates')->insert([
+                'user_id' => 16,
+                'barangay' => 'Punta',
+                'full_name' => $faker->name,
+                'age' => $faker->numberBetween(18, 70),
                 'gender' => $faker->randomElement(['Male', 'Female']),
-
                 'address' => $faker->address,
 
                 'document_type' => $faker->randomElement([
                     'Barangay Clearance',
                     'Certificate of Residency',
                     'Business Permit',
-                    'Certificate of Indigency',
+                    'Indigency Certificate'
                 ]),
-                'status' => $faker->randomElement(['pending', 'approved', 'rejected']),
 
-                'purpose' => $faker->sentence(6),
+                'purpose' => $faker->sentence(8),
 
                 'company_name' => $faker->optional()->company,
                 'business_nature' => $faker->optional()->jobTitle,
+
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }
