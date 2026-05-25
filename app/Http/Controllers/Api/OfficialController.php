@@ -34,9 +34,7 @@ class OfficialController extends Controller
         $user = auth()->user();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         $officials = Official::where('barangay', $user->barangay)
@@ -44,8 +42,7 @@ class OfficialController extends Controller
             ->get();
 
         return response()->json([
-            'officials' => $officials,
-            'count' => $officials->count(),
+            'officials' => $officials
         ]);
     }
 
