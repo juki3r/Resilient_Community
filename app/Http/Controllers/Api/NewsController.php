@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\News;
+use App\Models\NewsView;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -96,6 +97,63 @@ class NewsController extends Controller
             'message' => 'News created successfully',
             'data' => $news
         ], 201);
+    }
+
+    //Mark news views from api mobile app
+    public function markViewed(Request $request, $id)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            $news = News::findOrFail($id);
+
+            NewsView::updateOrCreate(
+                [
+                    'news_id' => $news->id,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'viewed_at' => now(),
+                ]
+            );
+
+            return response()->json([
+                'message' => 'News marked as viewed'
+            ], 200);
+        } catch (\Exception $e) {
+            \Log::error('markViewed failed', [
+                'error' => $e->getMessage(),
+                'news_id' => $id,
+                'user_id' => optional($request->user())->id,
+            ]);
+
+            return response()->json([
+                'message' => 'Server error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function unreadNews(Request $request)
+    {
+        $userId = $request->user()->id;
+
+        $news = News::whereDoesntHave('views', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'notifications' => $news,
+            'unread_count' => $news->count()
+        ]);
     }
 
     // SHOW
