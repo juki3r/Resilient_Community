@@ -36,12 +36,12 @@ class NewsController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $ordinances = News::where('barangay', $user->barangay)
+        $news = News::where('barangay', $user->barangay)
             ->latest()
             ->get();
 
         return response()->json([
-            'ordinances' => $ordinances
+            'news' => $news
         ]);
     }
 

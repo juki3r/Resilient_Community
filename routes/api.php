@@ -64,6 +64,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //Ordinance
     Route::get('/appuser/ordinances', [OrdinanceController::class, 'index_appuser']);
 
+    //News
+    Route::get('/appuser/news', [NewsController::class, 'index_appuser']);
+
 
 
 
