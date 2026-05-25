@@ -38,6 +38,23 @@ class CertificateController extends Controller
         return response()->json($query->paginate(10));
     }
 
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $requests = DocumentRequest::where('barangay', $user->barangay)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'requests' => $requests
+        ]);
+    }
+
     /**
      * ➕ Store new request (user submits form)
      */

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
             // Personal info
+            $table->string('barangay');
             $table->string('full_name');
             $table->integer('age');
             $table->string('gender');
