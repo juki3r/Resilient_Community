@@ -72,7 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::apiResource('mobile-users', AppUserController::class);
+    // Route::apiResource('mobile-users', AppUserController::class);
     Route::apiResource('announcements', AnnouncementController::class);
 
 
