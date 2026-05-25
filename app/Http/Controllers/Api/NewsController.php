@@ -49,6 +49,9 @@ class NewsController extends Controller
     // STORE
     public function store(Request $request)
     {
+
+        $user = auth()->user();
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -81,6 +84,7 @@ class NewsController extends Controller
         // DEFAULT VALUES
         // =====================
         $validated['user_id'] = auth()->id();
+        $validated['barangay'] = $user->barangay;
         $validated['status'] = $validated['status'] ?? 'draft';
 
         $validated['published_at'] =
