@@ -61,9 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //Officials
     Route::get('/appuser/officials', [OfficialController::class, 'index_appuser']);
 
-
-
-
+    //Ordinance
+    Route::get('/appuser/ordinances', [OrdinanceController::class, 'index_appuser']);
 
 
 

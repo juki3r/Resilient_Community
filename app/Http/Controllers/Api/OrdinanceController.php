@@ -37,6 +37,24 @@ class OrdinanceController extends Controller
         return response()->json($ordinances);
     }
 
+    //This is MOBILE APP
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $ordinances = Ordinance::where('barangay', $user->barangay)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'ordinances' => $ordinances
+        ]);
+    }
+
     // ================= STORE (AUTO ASSIGN USER_ID)
     public function store(Request $request)
     {
