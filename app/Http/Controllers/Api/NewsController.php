@@ -103,7 +103,7 @@ class NewsController extends Controller
     public function markViewed(Request $request, $id)
     {
         try {
-            $user = $request->user();
+            $user = auth()->user();
 
             if (!$user) {
                 return response()->json([
