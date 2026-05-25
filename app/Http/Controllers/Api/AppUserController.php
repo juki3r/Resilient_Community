@@ -172,10 +172,12 @@ class AppUserController extends Controller
             }
         }
 
-        $token = $mobileuser->createToken('auth_token')->plainTextToken;
+        if ($mobileuser->granted) {
+            $mobileuser->is_logged_in = true;
+            $mobileuser->save();
+        }
 
-        $mobileuser->is_logged_in = true;
-        $mobileuser->save();
+        $token = $mobileuser->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
