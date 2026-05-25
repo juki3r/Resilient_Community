@@ -56,7 +56,7 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category' => 'nullable|string',
-            'image' => 'nullable|image|max:10M',
+            'image' => 'nullable|image|max:20480',
             'status' => 'nullable|in:draft,published',
         ]);
 
@@ -114,7 +114,7 @@ class NewsController extends Controller
             'content' => 'sometimes|string',
             'category' => 'nullable|string',
             'status' => 'nullable|in:draft,published',
-            'image' => 'nullable|image|max:10M',
+            'image' => 'nullable|image|max:20480',
         ]);
 
         // =====================
