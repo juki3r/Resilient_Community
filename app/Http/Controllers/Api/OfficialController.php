@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class OfficialController extends Controller
 {
-    // GET ALL (with search + pagination)
+    // GET ALL (with search + pagination) WEB APP
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -26,6 +26,24 @@ class OfficialController extends Controller
 
         return $query->orderBy('created_at', 'desc')
             ->paginate(10);
+    }
+
+    //This is MOBILE APP
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $officials = Official::where('barangay', $user->barangay)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'officials' => $officials
+        ]);
     }
 
     // STORE

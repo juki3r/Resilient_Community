@@ -52,8 +52,21 @@ Route::middleware('auth:sanctum')->get('/me/granted-status', [AuthController::cl
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
 
+
+    //  This is the routes of all mobile 
     //Logout
     Route::post('/appuser/logout', [AppUserController::class, 'logout']);
+
+
+    //Officials
+    Route::get('/appuser/officials', [OfficialController::class, 'index_appuser']);
+
+
+
+
+
+
+
 
     //Logout
     Route::post('/logout', [AuthController::class, 'logout']);
