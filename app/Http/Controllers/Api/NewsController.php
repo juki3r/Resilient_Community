@@ -27,7 +27,6 @@ class NewsController extends Controller
         return $query->paginate(10);
     }
 
-    //This is MOBILE APP
     public function index_appuser(Request $request)
     {
         $user = auth()->user();
@@ -37,7 +36,8 @@ class NewsController extends Controller
         }
 
         $news = News::where('barangay', $user->barangay)
-            ->latest()
+            ->where('status', 'published')
+            ->orderBy('published_at', 'desc')
             ->get();
 
         return response()->json([
