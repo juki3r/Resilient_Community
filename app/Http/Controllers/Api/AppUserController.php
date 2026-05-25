@@ -230,8 +230,10 @@ class AppUserController extends Controller
             'otp_expires_at' => null,
         ]);
 
-        $mobileuser->is_logged_in = true;
-        $mobileuser->save();
+        if ($mobileuser->granted) {
+            $mobileuser->is_logged_in = true;
+            $mobileuser->save();
+        }
 
         // login token after verification
         $token = $user->createToken('auth_token')->plainTextToken;
