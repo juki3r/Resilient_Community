@@ -16,4 +16,9 @@ class News extends Model
         'user_id',
         'published_at',
     ];
+
+    public function views()
+    {
+        return $this->hasMany(NewsView::class);
+    }
 }
