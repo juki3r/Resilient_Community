@@ -27,6 +27,24 @@ class NewsController extends Controller
         return $query->paginate(10);
     }
 
+    //This is MOBILE APP
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $ordinances = News::where('barangay', $user->barangay)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'ordinances' => $ordinances
+        ]);
+    }
+
 
     // STORE
     public function store(Request $request)
