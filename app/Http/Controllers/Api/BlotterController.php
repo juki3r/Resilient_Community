@@ -47,7 +47,7 @@ class BlotterController extends Controller
         }
 
         $requests = Blotter::where('barangay', $user->barangay)
-            ->where('mobile_user_id', $user->id)
+            ->where('complainant_id', $user->id)
             ->latest()
             ->get();
 
