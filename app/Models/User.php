@@ -39,6 +39,7 @@ class User extends Authenticatable
         'otp_sent_at',
         'otp_expires_at',
         'is_logged_in',
+        'web_fcm_token',
     ];
 
     /**
