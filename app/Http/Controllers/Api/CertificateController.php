@@ -13,8 +13,16 @@ class CertificateController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
         $query = DocumentRequest::with('user')
-            ->where('user_id', auth()->id())
+            ->where('barangay', $user->barangay)
             ->orderByRaw("
             CASE 
                 WHEN status = 'pending' THEN 0
@@ -38,23 +46,6 @@ class CertificateController extends Controller
         return response()->json($query->paginate(10));
     }
 
-    public function index_appuser(Request $request)
-    {
-        $user = auth()->user();
-
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $requests = DocumentRequest::where('barangay', $user->barangay)
-            ->where('mobile_user_id', $user->id)
-            ->latest()
-            ->get();
-
-        return response()->json([
-            'requests' => $requests
-        ]);
-    }
 
     /**
      * ➕ Store new request (user submits form)
@@ -87,39 +78,7 @@ class CertificateController extends Controller
     }
 
 
-    // ======================== Mobile Store certificate request =======================
-    public function store_appuser(Request $request)
-    {
-        $user = auth()->user();
 
-        if (!$user) {
-            return response()->json([
-                'message' => 'Unauthenticated'
-            ], 401);
-        }
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'age' => 'required|integer',
-            'gender' => 'required|string',
-            'address' => 'required|string',
-
-            'document_type' => 'required|string',
-            'purpose' => 'required|string',
-
-            'company_name' => 'nullable|string|max:255',
-            'business_nature' => 'nullable|string|max:255',
-        ]);
-
-        $validated['mobile_user_id'] = $user->id;
-        $validated['barangay'] = $user->barangay;
-
-        $documentRequest = DocumentRequest::create($validated);
-
-        return response()->json([
-            'message' => 'Request submitted successfully',
-            'data' => $documentRequest
-        ]);
-    }
 
 
     public function updateStatus(Request $request, $id)
@@ -133,6 +92,14 @@ class CertificateController extends Controller
         $certificate->update([
             'status' => $request->status,
         ]);
+
+        // ========= This section will alert app user that admin updated the request =======
+        // ========= Use FCM  app, Sms to notify user ===============================
+
+
+
+
+        //====================================================================================
 
         return response()->json([
             'message' => 'Status updated successfully',
@@ -160,6 +127,72 @@ class CertificateController extends Controller
 
         return response()->json([
             'message' => 'Deleted successfully'
+        ]);
+    }
+
+
+
+    // ======================== Mobile  certificate request =======================
+
+
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $requests = DocumentRequest::where('barangay', $user->barangay)
+            ->where('mobile_user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'requests' => $requests
+        ]);
+    }
+
+
+
+    public function store_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'age' => 'required|integer',
+            'gender' => 'required|string',
+            'address' => 'required|string',
+
+            'document_type' => 'required|string',
+            'purpose' => 'required|string',
+
+            'company_name' => 'nullable|string|max:255',
+            'business_nature' => 'nullable|string|max:255',
+        ]);
+
+        $validated['mobile_user_id'] = $user->id;
+        $validated['barangay'] = $user->barangay;
+
+        $documentRequest = DocumentRequest::create($validated);
+
+        // ========= This section will alert admin that user request certifications =======
+        // ========= Use FCM admin app, Sms to notify admin ===============================
+
+
+
+
+        //====================================================================================
+
+        return response()->json([
+            'message' => 'Request submitted successfully',
+            'data' => $documentRequest
         ]);
     }
 }
