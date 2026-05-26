@@ -70,6 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appuser/requests', [CertificateController::class, 'store_appuser']);
     Route::get('/appuser/my-requests', [CertificateController::class, 'index_appuser']);
 
+    Route::get('/appuser/blotters', [CertificateController::class, 'index_appuser']);
+
 
 
     //Logout
