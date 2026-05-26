@@ -47,8 +47,7 @@ class BlotterController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $requests = Blotter::where('barangay', $user->barangay)
-            ->where('complainant_id', $user->id)
+        $requests = Blotter::where('complainant_id', $user->id)
             ->latest()
             ->get();
 
