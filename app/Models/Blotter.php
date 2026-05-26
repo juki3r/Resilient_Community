@@ -103,7 +103,7 @@ class Blotter extends Model
 
     public function complainant()
     {
-        return $this->belongsTo(Resident::class, 'complainant_id');
+        return $this->belongsTo(MobileUser::class, 'complainant_id');
     }
 
     public function respondent()
