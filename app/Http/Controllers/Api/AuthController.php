@@ -321,4 +321,20 @@ class AuthController extends Controller
             'granted' => (bool) $request->user()->granted,
         ]);
     }
+
+    public function saveWebToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required'
+        ]);
+
+        $user = auth()->user();
+
+        $user->web_fcm_token = $request->fcm_token;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Token saved'
+        ]);
+    }
 }
