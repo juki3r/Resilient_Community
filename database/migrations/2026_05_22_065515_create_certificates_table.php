@@ -14,8 +14,18 @@ return new class extends Migration
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
 
-            // 🔗 Link to users table
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            // Admin panel user
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('cascade');
+
+            // Mobile app user
+            $table->foreignId('mobile_user_id')
+                ->nullable()
+                ->constrained('mobile_users')
+                ->onDelete('cascade');
+
 
             // Personal info
             $table->string('barangay');

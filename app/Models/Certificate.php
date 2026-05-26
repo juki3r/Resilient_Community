@@ -12,6 +12,7 @@ class Certificate extends Model
     protected $fillable = [
         'barangay',
         'user_id',
+        'mobile_user_id',
         'full_name',
         'age',
         'gender',
@@ -29,5 +30,11 @@ class Certificate extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Mobile app user
+    public function mobileUser()
+    {
+        return $this->belongsTo(MobileUser::class);
     }
 }
