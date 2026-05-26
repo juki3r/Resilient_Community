@@ -110,7 +110,7 @@ class CertificateController extends Controller
             'business_nature' => 'nullable|string|max:255',
         ]);
 
-        $validated['user_id'] = auth()->id();
+        $validated['mobile_user_id'] = $user->id;
         $validated['barangay'] = $user->barangay;
 
         $documentRequest = DocumentRequest::create($validated);
