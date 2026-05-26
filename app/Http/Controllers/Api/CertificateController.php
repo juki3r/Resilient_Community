@@ -47,6 +47,7 @@ class CertificateController extends Controller
         }
 
         $requests = DocumentRequest::where('barangay', $user->barangay)
+            ->where('id', $user->id)
             ->latest()
             ->get();
 
