@@ -37,6 +37,7 @@ return new class extends Migration
             // Document request info
             $table->string('document_type');
             $table->text('purpose');
+            $table->string('status')->default('pending');
 
             // Business info (nullable because not always used)
             $table->string('company_name')->nullable();
