@@ -91,6 +91,12 @@ class CertificateController extends Controller
     public function store_appuser(Request $request)
     {
         $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'age' => 'required|integer',
