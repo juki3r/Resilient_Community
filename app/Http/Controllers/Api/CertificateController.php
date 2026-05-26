@@ -86,6 +86,36 @@ class CertificateController extends Controller
         ]);
     }
 
+
+    // ======================== Mobile Store certificate request =======================
+    public function store_appuser(Request $request)
+    {
+        $user = auth()->user();
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'age' => 'required|integer',
+            'gender' => 'required|string',
+            'address' => 'required|string',
+
+            'document_type' => 'required|string',
+            'purpose' => 'required|string',
+
+            'company_name' => 'nullable|string|max:255',
+            'business_nature' => 'nullable|string|max:255',
+        ]);
+
+        $validated['user_id'] = auth()->id();
+        $validated['barangay'] = $user->barangay;
+
+        $documentRequest = DocumentRequest::create($validated);
+
+        return response()->json([
+            'message' => 'Request submitted successfully',
+            'data' => $documentRequest
+        ]);
+    }
+
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([

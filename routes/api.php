@@ -51,7 +51,7 @@ Route::middleware('auth:sanctum')->get('/me/granted-status', [AuthController::cl
 Route::middleware('auth:sanctum')->group(function () {
 
 
-    //  This is the routes of all mobile 
+    //================================== Mobile App ============================================
     //Logout
     Route::post('/appuser/logout', [AppUserController::class, 'logout']);
 
