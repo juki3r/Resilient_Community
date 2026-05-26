@@ -38,6 +38,7 @@ class BlotterController extends Controller
         return $query->paginate(10);
     }
 
+    //Mobile app
     public function index_appuser(Request $request)
     {
         $user = auth()->user();
