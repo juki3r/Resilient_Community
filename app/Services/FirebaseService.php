@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class FirebaseService
 {
-    protected $apiUrl = 'https://fcm.googleapis.com/v1/projects/estancia-daan-banwa/messages:send';
+    protected $apiUrl = 'https://fcm.googleapis.com/v1/projects/alertoph-6d47b/messages:send';
     protected $credentialsPath;
 
     public function __construct()
