@@ -95,51 +95,42 @@ class CertificateController extends Controller
             'status' => $request->status,
         ]);
 
-        // ========= This section will alert app user that admin updated the request =======
-        // ========= Use FCM  app, Sms to notify user ===============================
-
-        // Get user from request (IMPORTANT FIX)
-        $user = MobileUser::find($id);
+        // ✅ FIXED USER LOOKUP
+        $user = MobileUser::find($certificate->mobile_user_id);
 
         if (!$user) {
-            return response()->json([
-                'message' => 'User not found',
-            ]);
-        }
-
-        if (!$user->fcm_token) {
-            return response()->json([
-                'message' => 'User has no FCM token registered.',
-            ]);
+            return response()->json(['message' => 'User not found']);
         }
 
         $title = "Certification Request Update";
         $body  = "Your request has been " . $request->status;
 
-        (new \App\Services\FirebaseService)->sendNotification(
-            $user->fcm_token,
-            $title,
-            $body,
-            [
-                'screen' => 'Requests',
-                'requests_id' => (string) $user->id,
-            ]
-        );
+        // ================= FCM =================
+        if ($user->fcm_token) {
+            (new \App\Services\FirebaseService)->sendNotification(
+                $user->fcm_token,
+                $title,
+                $body,
+                [
+                    'screen' => 'Requests',
+                    'requests_id' => (string) $certificate->id,
+                ]
+            );
+        }
 
-        //  SEND SMS
+        // ================= SMS =================
         try {
-            Http::withHeaders([
-                'X-API-KEY' => env('SMS_API_KEY')
-            ])->post('https://carlesppo.com/api/send-sms-api', [
-                'phone_number' => $user->phone,
-                'message' => "[Daan Banwa ALERT]\n$title\n$body"
-            ]);
+            if ($user->phone) {
+                Http::withHeaders([
+                    'X-API-KEY' => env('SMS_API_KEY')
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $user->phone,
+                    'message' => "[Daan Banwa ALERT]\n$title\n$body"
+                ]);
+            }
         } catch (\Exception $e) {
             \Log::error('SMS failed: ' . $e->getMessage());
         }
-
-
-        //====================================================================================
 
         return response()->json([
             'message' => 'Status updated successfully',
