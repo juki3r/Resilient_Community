@@ -67,10 +67,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appuser/news/{id}/view', [NewsController::class, 'markViewed']);
     Route::get('/appuser/unread-news', [NewsController::class, 'unreadNews']);
 
+
+    //Certifications
     Route::post('/appuser/requests', [CertificateController::class, 'store_appuser']);
     Route::get('/appuser/my-requests', [CertificateController::class, 'index_appuser']);
 
-    Route::get('/appuser/blotters', [CertificateController::class, 'index_appuser']);
+
+    //Blotters
+    Route::get('/appuser/blotters', [BlotterController::class, 'index_appuser']);
 
 
 
