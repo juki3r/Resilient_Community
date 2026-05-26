@@ -38,6 +38,24 @@ class BlotterController extends Controller
         return $query->paginate(10);
     }
 
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $requests = Blotter::where('barangay', $user->barangay)
+            ->where('mobile_user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'requests' => $requests
+        ]);
+    }
+
     // =========================
     // STORE NEW BLOTTER
     // =========================

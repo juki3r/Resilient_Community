@@ -35,10 +35,13 @@ return new class extends Migration
             // =========================
             // COMPLAINANT
             // =========================
+
+            // Mobile app user
             $table->foreignId('complainant_id')
                 ->nullable()
-                ->constrained('residents')
-                ->nullOnDelete();
+                ->constrained('mobile_users')
+                ->onDelete('cascade');
+
 
             $table->string('complainant_name');
             $table->string('complainant_contact')->nullable();
