@@ -126,7 +126,7 @@ class CertificateController extends Controller
                     'X-API-KEY' => env('SMS_API_KEY')
                 ])->post('https://carlesppo.com/api/send-sms-api', [
                     'phone_number' => $user->phone,
-                    'message' => "[Daan Banwa ALERT]\n$title\n$body"
+                    'message' => "[AlertoPH ALERT]\n$title\n$body"
                 ]);
             }
         } catch (\Exception $e) {
@@ -246,7 +246,7 @@ class CertificateController extends Controller
                     'X-API-KEY' => env('SMS_API_KEY')
                 ])->post('https://carlesppo.com/api/send-sms-api', [
                     'phone_number' => $admin->phone,
-                    'message' => $documentRequest->full_name . " is requesting " . $documentRequest->document_type
+                    'message' => "[AlertoPH ALERT]\n" . $documentRequest->full_name . " is requesting " . $documentRequest->document_type
                 ]);
             }
         }
