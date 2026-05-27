@@ -88,7 +88,7 @@ class ConcernController extends Controller
                 'body' => "New concern from {$user->full_name}",
                 'sms' => "[AlertoPH ALERT]\n{$user->full_name} submitted a concern!",
                 'request_id' => $user->id,
-                'url' => '/blotters'
+                'url' => '/concerns'
             ],
             $user->barangay
         );
