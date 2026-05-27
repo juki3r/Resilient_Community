@@ -222,16 +222,16 @@ class CertificateController extends Controller
         // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
         // NotifyAdminsJob::dispatch($documentRequest->id);
 
-        // SendAdminNotificationJob::dispatch(
-        //     'certificate',
-        //     [
-        //         'title' => 'New Certification Request',
-        //         'body' => "New request from {$documentRequest->full_name}",
-        //         'sms' => "[AlertoPH ALERT]\n{$documentRequest->full_name} requested {$documentRequest->document_type}",
-        //         'request_id' => $documentRequest->id
-        //     ],
-        //     $user->barangay
-        // );
+        SendAdminNotificationJob::dispatch(
+            'certificates',
+            [
+                'title' => 'New Certification Request',
+                'body' => "New request from {$documentRequest->full_name}",
+                'sms' => "[AlertoPH ALERT]\n{$documentRequest->full_name} requested {$documentRequest->document_type}",
+                'request_id' => $documentRequest->id
+            ],
+            $user->barangay
+        );
 
 
         //====================================================================================

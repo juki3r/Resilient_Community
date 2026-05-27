@@ -18,7 +18,7 @@ class SendAdminNotificationJob implements ShouldQueue
     public function __construct(
         public string $type,        // e.g. "certificate", "blotter"
         public array $data,         // dynamic payload
-        public ?int $barangayId = null
+        public $barangayId = null,
     ) {}
 
     public function handle()
