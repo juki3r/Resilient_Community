@@ -236,6 +236,8 @@ class CertificateController extends Controller
                     $title,
                     $body,
                     [
+                        'screen' => 'Requests',
+                        'request_id' => (string) $documentRequest->id,
                         'url' => 'https://google.com',
                     ]
                 );
