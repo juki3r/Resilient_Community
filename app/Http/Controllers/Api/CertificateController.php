@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate as DocumentRequest;
 use App\Models\MobileUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -215,6 +216,29 @@ class CertificateController extends Controller
 
         // ========= This section will alert admin that user request certifications =======
         // ========= Use FCM admin app, Sms to notify admin ===============================
+        $admins = User::where('barangay', $user->barangay)
+            ->where('role', 'bdrrmo_admin')
+            ->get();
+
+        if ($admins->isEmpty()) {
+            return response()->json(['message' => 'admin not found'], 404);
+        }
+
+        $title = "New Certification Request";
+        $body  = "New request from " . $request->full_name;
+
+        // ================= FCM =================
+        if ($admins->web_fcm_token) {
+            (new \App\Services\FirebaseService)->sendNotification(
+                $admins->web_fcm_token,
+                $title,
+                $body,
+                [
+                    'screen' => 'Requests',
+                    'requests_id' => (string) $admins->id,
+                ]
+            );
+        }
 
 
 
