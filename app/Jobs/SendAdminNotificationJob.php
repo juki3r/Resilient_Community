@@ -25,34 +25,33 @@ class SendAdminNotificationJob implements ShouldQueue
     {
         $firebase = new FirebaseService();
 
-        $admins = User::where('role', 'bdrrmo_admin');
-
-        if ($this->barangay) {
-            $admins->where('barangay', $this->barangay);
-        }
-
-        $admins = $admins->get();
+        $admins = User::where('role', 'bdrrmo_admin')
+            ->when($this->barangay, fn($q) =>
+                $q->where('barangay', $this->barangay)
+            )
+            ->get();
 
         foreach ($admins as $admin) {
 
-            if ($admin->web_fcm_token) {
+            if (!$admin->web_fcm_token) continue;
 
-                $firebase->sendDataOnlyNotification(
-                    $admin->web_fcm_token,
-                    [
-                        'notification' => [
-                            'title' => $this->data['title'] ?? 'Notification',
-                            'body'  => $this->data['body'] ?? '',
-                        ],
+            $firebase->send($admin->web_fcm_token, [
+                "message" => [
+                    "token" => $admin->web_fcm_token,
 
-                        'data' => [
-                            'type' => $this->type,
-                            'url' => $this->data['url'] ?? '/',
-                            'request_id' => (string)($this->data['request_id'] ?? ''),
-                        ]
+                    "notification" => [
+                        "title" => $this->data['title'],
+                        "body"  => $this->data['body'],
+                    ],
+
+                    "data" => [
+                        "url" => $this->data['url'] ?? "/",
+                        "type" => $this->type,
+                        "request_id" => (string) $this->data['request_id']
                     ]
-                );
-            }
+                ]
+            ]);
+        }
 
             if ($admin->phone) {
                 Http::withHeaders([
