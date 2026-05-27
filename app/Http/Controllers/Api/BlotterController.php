@@ -163,6 +163,60 @@ class BlotterController extends Controller
         ], 201);
     }
 
+    public function store_appuser(Request $request)
+    {
+        $validated = $request->validate([
+            'incident_type' => 'required|string',
+            'incident_category' => 'nullable|string',
+            'incident_date' => 'required|date',
+            'incident_time' => 'nullable',
+            'incident_location' => 'required|string',
+            'incident_details' => 'required|string',
+
+            'complainant_id' => 'nullable|exists:residents,id',
+            'complainant_name' => 'required|string',
+
+            'respondent_id' => 'nullable|exists:residents,id',
+            'respondent_name' => 'nullable|string',
+
+            'status' => 'nullable|string',
+            'priority_level' => 'nullable|string',
+        ]);
+
+        $blotter = null;
+
+        DB::transaction(function () use (&$validated, &$blotter, $request) {
+
+            $year = date('Y');
+
+            $last = Blotter::whereYear('created_at', $year)
+                ->lockForUpdate()
+                ->orderBy('id', 'desc')
+                ->first();
+
+            $nextNumber = 1;
+
+            if ($last && $last->blotter_number) {
+                $parts = explode('-', $last->blotter_number);
+                $nextNumber = intval(end($parts)) + 1;
+            }
+
+            $validated['blotter_number'] =
+                'BLT-' . $year . '-' . str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+
+            $validated['status'] = $validated['status'] ?? 'Pending';
+            $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
+            $validated['user_id'] = $request->user()->id;
+
+            $blotter = Blotter::create($validated);
+        });
+
+        return response()->json([
+            'message' => 'Blotter created successfully',
+            'data' => $blotter
+        ], 201);
+    }
+
     // =========================
     // SHOW SINGLE BLOTTER
     // =========================

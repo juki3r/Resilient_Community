@@ -75,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Blotters
     Route::get('/appuser/blotters', [BlotterController::class, 'index_appuser']);
+    Route::post('/appuser/blotters', [BlotterController::class, 'store_appuser']);
 
 
 
