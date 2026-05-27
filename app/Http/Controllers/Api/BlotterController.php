@@ -152,7 +152,8 @@ class BlotterController extends Controller
 
             $validated['status'] = $validated['status'] ?? 'Pending';
             $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
-            $validated['user_id'] = $request->user()->id;
+            $validated['user_id'] = auth()->user()->id;
+            $validated['barangay'] = auth()->user()->barangay;
 
             $blotter = Blotter::create($validated);
         });
@@ -211,6 +212,7 @@ class BlotterController extends Controller
             $validated['status'] = $validated['status'] ?? 'Pending';
             $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
             $validated['complainant_id'] = $mobileuser->id;
+            $validated['barangay'] = $mobileuser->barangay;
 
             $blotter = Blotter::create($validated);
         });
