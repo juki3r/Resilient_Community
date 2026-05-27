@@ -216,29 +216,29 @@ class CertificateController extends Controller
 
         // ========= This section will alert admin that user request certifications =======
         // ========= Use FCM admin app, Sms to notify admin ===============================
-        // $admins = User::where('barangay', $user->barangay)
-        //     ->where('role', 'bdrrmo_admin')
-        //     ->get();
+        $admins = User::where('barangay', $user->barangay)
+            ->where('role', 'bdrrmo_admin')
+            ->get();
 
-        // if ($admins->isEmpty()) {
-        //     return response()->json(['message' => 'admin not found'], 404);
-        // }
+        if ($admins->isEmpty()) {
+            return response()->json(['message' => 'admin not found'], 404);
+        }
 
-        // $title = "New Certification Request";
-        // $body  = "New request from " . $request->full_name;
+        $title = "New Certification Request";
+        $body  = "New request from " . $request->full_name;
 
-        // // ================= FCM =================
-        // if ($admins->web_fcm_token) {
-        //     (new \App\Services\FirebaseService)->sendNotification(
-        //         $admins->web_fcm_token,
-        //         $title,
-        //         $body,
-        //         [
-        //             'screen' => 'Requests',
-        //             'requests_id' => (string) $admins->id,
-        //         ]
-        //     );
-        // }
+        // ================= FCM =================
+        if ($admins->web_fcm_token) {
+            (new \App\Services\FirebaseService)->sendNotification(
+                $admins->web_fcm_token,
+                $title,
+                $body,
+                [
+                    'screen' => 'Requests',
+                    'requests_id' => (string) $admins->id,
+                ]
+            );
+        }
 
 
 
