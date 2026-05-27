@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\Ordinance;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -89,6 +90,21 @@ class OrdinanceController extends Controller
             'approved_date' => $validated['approved_date'] ?? null,
             'penalties' => $validated['penalties'] ?? null,
         ]);
+
+        // =========================
+        // NOTIFICATION (ASYNC JOB)
+        // =========================
+        SendAdminNotificationJob::dispatch(
+            'resident',
+            [
+                'title' => "{$user->barangay} added new ordinance!",
+                'body' => "New ordinance added !",
+                'sms' => "[AlertoPH ALERT]\n{$user->barangay} added new ordinance!\n",
+                'request_id' => $user->id,
+                'url' => '/ordinance'
+            ],
+            $user->barangay
+        );
 
         return response()->json([
             'message' => 'Ordinance created successfully',
