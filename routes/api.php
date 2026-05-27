@@ -154,6 +154,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
 
 
+    //Concerns
+    Route::get('/concerns', [ConcernController::class, 'index']);
 
 
     Route::post('/save-web-token', [AuthController::class, 'saveWebToken']);
