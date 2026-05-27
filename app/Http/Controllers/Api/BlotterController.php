@@ -16,7 +16,7 @@ class BlotterController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->user();
 
         if (!$user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
