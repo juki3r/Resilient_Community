@@ -234,7 +234,7 @@ class BlotterController extends Controller
                     'body' => "New blotter from {$request->complainant_name}",
                     'sms' => "[AlertoPH ALERT]\n{$request->complainant_name} submitted a blotter report!",
                     'request_id' => $request->complainant_id,
-                    'url' => '/certificates'
+                    'url' => '/blotters'
                 ],
                 $mobileuser->barangay
             );
