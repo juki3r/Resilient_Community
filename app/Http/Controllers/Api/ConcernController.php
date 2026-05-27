@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendAdminNotificationJob;
 use App\Models\Concern;
+use App\Models\MobileUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ConcernController extends Controller
 {
@@ -92,5 +94,82 @@ class ConcernController extends Controller
             'message' => 'Concern created successfully',
             'data' => $concern
         ], 201);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+
+        $request->validate([
+            'status' => 'required|in:received,under_review,in_progress,resolved,rejected'
+        ]);
+
+        $concern = Concern::findOrFail($id);
+
+        $concern->update([
+            'status' => $request->status,
+            'admin_read' => true
+        ]);
+
+
+
+        // Get user from request (IMPORTANT FIX)
+        $user = MobileUser::find($concern->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found for this concern'
+            ]);
+        }
+
+        if (!$user->fcm_token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'FCM token not found for user'
+            ]);
+        }
+
+        $title = "Concern Update !";
+        $body  = "Your concern is " . $request->status;
+
+        (new \App\Services\FirebaseService)->sendNotification(
+            $user->fcm_token,
+            $title,
+            $body,
+            [
+                'screen' => 'Concerns',
+                'concerns_id' => (string) $concern->id,
+            ]
+        );
+
+        //  SEND SMS
+        try {
+            Http::withHeaders([
+                'X-API-KEY' => env('SMS_API_KEY')
+            ])->post('https://carlesppo.com/api/send-sms-api', [
+                'phone_number' => $user->phone,
+                'message' => "[AlertoPH]\n$title\n$body"
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('SMS failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $request->status,
+            'message' => 'Concern status updated successfully'
+        ]);
+    }
+
+    //Delete Concern
+    public function destroy($id)
+    {
+        $request = Concern::findOrFail($id);
+        $request->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Concern deleted successfully'
+        ]);
     }
 }
