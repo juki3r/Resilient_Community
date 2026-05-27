@@ -78,6 +78,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appuser/blotters', [BlotterController::class, 'index_appuser']);
     Route::post('/appuser/blotters', [BlotterController::class, 'store_appuser']);
 
+    //Concern
+    Route::post('/appuser/concerns', [ConcernController::class, 'store']);
+
 
 
     //=========================== WEB =======================================================
@@ -150,8 +153,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
 
 
-    //Concern
-    Route::post('/concerns', [ConcernController::class, 'store']);
+
 
     Route::post('/save-web-token', [AuthController::class, 'saveWebToken']);
 });
