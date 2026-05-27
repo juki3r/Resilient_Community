@@ -136,6 +136,7 @@ class BlotterController extends Controller
             $year = date('Y');
 
             $last = Blotter::whereYear('created_at', $year)
+                ->lockForUpdate()
                 ->orderBy('id', 'desc')
                 ->first();
 
@@ -151,8 +152,6 @@ class BlotterController extends Controller
 
             $validated['status'] = $validated['status'] ?? 'Pending';
             $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
-
-            // OWNERSHIP
             $validated['user_id'] = $request->user()->id;
 
             $blotter = Blotter::create($validated);
