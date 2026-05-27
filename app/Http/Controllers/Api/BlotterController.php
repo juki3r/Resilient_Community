@@ -23,7 +23,7 @@ class BlotterController extends Controller
         }
 
         $query = Blotter::with(['complainant', 'respondent'])
-            ->where('barangay', $user->barangay)
+            ->where('user_id', $user->id)
             ->latest();
 
         if ($request->search) {
