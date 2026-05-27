@@ -79,7 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/appuser/blotters', [BlotterController::class, 'store_appuser']);
 
     //Concern
-    Route::post('/appuser/concerns', [ConcernController::class, 'store']);
+    Route::post('/appuser/concerns', [ConcernController::class, 'store_appuser']);
 
 
 
