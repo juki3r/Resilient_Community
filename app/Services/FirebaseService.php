@@ -52,6 +52,39 @@ class FirebaseService
         }
     }
 
+
+    //================== For Web Data Admin notify =====================
+    public function sendDataOnlyNotification($fcmToken, $data = [])
+    {
+        try {
+            $accessToken = $this->getAccessToken();
+            $client = new Client();
+
+            $response = $client->post($this->apiUrl, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $accessToken,
+                    'Content-Type'  => 'application/json',
+                ],
+                'json' => [
+                    'message' => [
+                        'token' => $fcmToken,
+
+                        // 🔥 DATA ONLY (NO notification block)
+                        'data' => array_map('strval', $data),
+                    ],
+                ],
+            ]);
+
+            return json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            Log::error('Firebase send error: ' . $e->getMessage());
+
+            return [
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
     private function getAccessToken()
     {
         $credentials = json_decode(file_get_contents($this->credentialsPath), true);

@@ -231,18 +231,17 @@ class CertificateController extends Controller
 
         foreach ($admins as $admin) {
             if ($admin->web_fcm_token) {
-                $firebase->sendNotification(
+                $firebase->sendDataOnlyNotification(
                     $admin->web_fcm_token,
-                    $title,
-                    $body,
                     [
+                        'title' => $title,
+                        'body' => $body,
                         'screen' => 'Requests',
                         'request_id' => (string) $documentRequest->id,
                     ]
                 );
             }
         }
-
 
 
         //====================================================================================
