@@ -22,7 +22,9 @@ class ConcernController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $query = Concern::with('user')->where('barangay', $user->barangay)->latest();
+        $query = Concern::with(['user:id,full_name'])
+            ->where('barangay', $user->barangay)
+            ->latest();
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
