@@ -227,19 +227,21 @@ class CertificateController extends Controller
         $title = "New Certification Request";
         $body  = "New request from " . $request->full_name;
 
-        // ================= FCM =================
-        if ($admins->web_fcm_token) {
-            (new \App\Services\FirebaseService)->sendNotification(
-                $admins->web_fcm_token,
-                $title,
-                $body,
-                [
-                    'screen' => 'Requests',
-                    'requests_id' => (string) $admins->id,
-                ]
-            );
-        }
+        $firebase = new \App\Services\FirebaseService();
 
+        foreach ($admins as $admin) {
+            if ($admin->web_fcm_token) {
+                $firebase->sendNotification(
+                    $admin->web_fcm_token,
+                    $title,
+                    $body,
+                    [
+                        'screen' => 'Requests',
+                        'request_id' => (string) $documentRequest->id,
+                    ]
+                );
+            }
+        }
 
 
 
