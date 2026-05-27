@@ -228,7 +228,7 @@ class BlotterController extends Controller
             // NotifyAdminsJob::dispatch($documentRequest->id);
 
             SendAdminNotificationJob::dispatch(
-                'blotter',
+                'admin',
                 [
                     'title' => 'New Blotter Report',
                     'body' => "New blotter from {$request->complainant_name}",

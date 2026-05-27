@@ -2,14 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Models\MobileUser;
+use App\Models\User;
+use App\Services\FirebaseService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use App\Models\User;
-use App\Services\FirebaseService;
 
 class SendAdminNotificationJob implements ShouldQueue
 {
@@ -23,13 +24,24 @@ class SendAdminNotificationJob implements ShouldQueue
 
     public function handle()
     {
+        // route by role type
+        match ($this->type) {
+            'resident' => $this->sendToResidents(),
+            default => $this->sendToAdmins(),
+        };
+    }
+
+    /* =========================
+        ADMINS NOTIFICATION
+    ========================== */
+    private function sendToAdmins()
+    {
         $firebase = new FirebaseService();
 
         $admins = User::where('role', 'bdrrmo_admin')
             ->when(
                 $this->barangay,
-                fn($q) =>
-                $q->where('barangay', $this->barangay)
+                fn($q) => $q->where('barangay', $this->barangay)
             )
             ->get();
 
@@ -51,14 +63,55 @@ class SendAdminNotificationJob implements ShouldQueue
                 ]
             ]);
 
-            if ($admin->phone) {
-                Http::withHeaders([
-                    'X-API-KEY' => env('SMS_API_KEY')
-                ])->post('https://carlesppo.com/api/send-sms-api', [
-                    'phone_number' => $admin->phone,
-                    'message' => $this->data['sms'] ?? $this->data['body']
-                ]);
-            }
+            $this->sendSms($admin);
         }
+    }
+
+    /* =========================
+        RESIDENTS NOTIFICATION
+    ========================== */
+    private function sendToResidents()
+    {
+        $firebase = new FirebaseService();
+
+        $residents = MobileUser::where('role', 'resident')
+            ->when(
+                $this->barangay,
+                fn($q) => $q->where('barangay', $this->barangay)
+            )
+            ->get();
+
+        foreach ($residents as $resident) {
+
+            if (!$resident->fcm_token) continue;
+
+            $firebase->sendNotification(
+                $resident->fcm_token,
+                $this->data['title'],
+                $this->data['body'],
+                [
+                    "url" => $this->data['url'] ?? "/",
+                    "type" => $this->type,
+                    "request_id" => (string) $this->data['request_id'],
+                ]
+            );
+
+            $this->sendSms($resident);
+        }
+    }
+
+    /* =========================
+        SMS SHARED FUNCTION
+    ========================== */
+    private function sendSms($user)
+    {
+        if (!$user->phone) return;
+
+        Http::withHeaders([
+            'X-API-KEY' => env('SMS_API_KEY')
+        ])->post('https://carlesppo.com/api/send-sms-api', [
+            'phone_number' => $user->phone,
+            'message' => $this->data['sms'] ?? $this->data['body']
+        ]);
     }
 }

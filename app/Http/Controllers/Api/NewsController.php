@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\News;
 use App\Models\NewsView;
 use Illuminate\Http\Request;
@@ -92,6 +93,30 @@ class NewsController extends Controller
             $validated['status'] === 'published' ? now() : null;
 
         $news = News::create($validated);
+
+
+
+        // ========= This section will alert admin that user request certifications =======
+        // ========= Use FCM admin app, Sms to notify admin ===============================
+
+
+        // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
+        // NotifyAdminsJob::dispatch($documentRequest->id);
+
+        SendAdminNotificationJob::dispatch(
+            'certificate',
+            [
+                'title' => 'New Certification Request',
+                'body' => "New request from {$documentRequest->full_name}",
+                'sms' => "[AlertoPH ALERT]\n{$documentRequest->full_name} requested {$documentRequest->document_type}",
+                'request_id' => $documentRequest->id,
+                'url' => '/certificates'
+            ],
+            $user->barangay
+        );
+
+
+        //====================================================================================
 
         return response()->json([
             'message' => 'News created successfully',

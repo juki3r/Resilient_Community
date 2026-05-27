@@ -215,15 +215,11 @@ class CertificateController extends Controller
 
         $documentRequest = DocumentRequest::create($validated);
 
-        // ========= This section will alert admin that user request certifications =======
-        // ========= Use FCM admin app, Sms to notify admin ===============================
-
-
-        // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
-        // NotifyAdminsJob::dispatch($documentRequest->id);
-
+        // =========================
+        // NOTIFICATION (ASYNC JOB)
+        // =========================
         SendAdminNotificationJob::dispatch(
-            'certificate',
+            'admin',
             [
                 'title' => 'New Certification Request',
                 'body' => "New request from {$documentRequest->full_name}",
