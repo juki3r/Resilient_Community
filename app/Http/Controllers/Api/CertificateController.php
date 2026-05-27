@@ -239,6 +239,30 @@ class CertificateController extends Controller
                 );
             }
         }
+        // ================= SMS =================
+        foreach ($admins as $admin) {
+            if ($admin->phone) {
+                Http::withHeaders([
+                    'X-API-KEY' => env('SMS_API_KEY')
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $admin->phone,
+                    'message' => $documentRequest->full_name . "is requesting " . $documentRequest->document_type
+                ]);
+            }
+        }
+
+        // try {
+        //     if ($user->phone) {
+        //         Http::withHeaders([
+        //             'X-API-KEY' => env('SMS_API_KEY')
+        //         ])->post('https://carlesppo.com/api/send-sms-api', [
+        //             'phone_number' => $user->phone,
+        //             'message' => "[Daan Banwa ALERT]\n$title\n$body"
+        //         ]);
+        //     }
+        // } catch (\Exception $e) {
+        //     \Log::error('SMS failed: ' . $e->getMessage());
+        // }
 
 
 
