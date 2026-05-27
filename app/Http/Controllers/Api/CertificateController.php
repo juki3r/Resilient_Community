@@ -246,7 +246,7 @@ class CertificateController extends Controller
                     'X-API-KEY' => env('SMS_API_KEY')
                 ])->post('https://carlesppo.com/api/send-sms-api', [
                     'phone_number' => $admin->phone,
-                    'message' => $documentRequest->full_name . "is requesting " . $documentRequest->document_type
+                    'message' => $documentRequest->full_name . " is requesting " . $documentRequest->document_type
                 ]);
             }
         }
