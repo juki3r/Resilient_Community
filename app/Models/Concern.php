@@ -23,7 +23,7 @@ class Concern extends Model
 
     public function user()
     {
-        return $this->belongsTo(MobileUser::class, 'user_id');
+        return $this->belongsTo(MobileUser::class, 'user_id', 'user_id');
     }
 
     protected $casts = [
