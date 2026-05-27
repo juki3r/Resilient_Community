@@ -49,7 +49,9 @@ class SendAdminNotificationJob implements ShouldQueue
                     "data" => [
                         "url" => $this->data['url'] ?? "/",
                         "type" => $this->type,
-                        "request_id" => (string) $this->data['request_id']
+                        "request_id" => (string) $this->data['request_id'],
+                        "title" => $this->data['title'],   // 👈 ADD THIS
+                        "body"  => $this->data['body'],    // 👈 ADD THIS
                     ]
                 ]
             ]);
