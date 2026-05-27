@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Blotter;
+use App\Models\MobileUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 
 class BlotterController extends Controller
@@ -258,6 +260,44 @@ class BlotterController extends Controller
         ]);
 
         $blotter->update($validated);
+
+
+        // ✅ FIXED USER LOOKUP
+        $user = MobileUser::find($blotter->complainant_id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found']);
+        }
+
+        $title = "Blotter report Update";
+        $body  = "Your blotter reprot has been " . $request->status;
+
+        // ================= FCM =================
+        if ($user->fcm_token) {
+            (new \App\Services\FirebaseService)->sendNotification(
+                $user->fcm_token,
+                $title,
+                $body,
+                [
+                    'screen' => 'Requests',
+                    'requests_id' => (string) $blotter->id,
+                ]
+            );
+        }
+
+        // ================= SMS =================
+        try {
+            if ($user->phone) {
+                Http::withHeaders([
+                    'X-API-KEY' => env('SMS_API_KEY')
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $user->phone,
+                    'message' => "[AlertoPH ALERT]\n$title\n$body"
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('SMS failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Blotter updated successfully',
