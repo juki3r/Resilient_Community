@@ -223,7 +223,7 @@ class CertificateController extends Controller
         // NotifyAdminsJob::dispatch($documentRequest->id);
 
         SendAdminNotificationJob::dispatch(
-            'certificates',
+            'certificate',
             [
                 'title' => 'New Certification Request',
                 'body' => "New request from {$documentRequest->full_name}",
