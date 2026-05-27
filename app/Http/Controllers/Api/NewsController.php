@@ -96,25 +96,20 @@ class NewsController extends Controller
 
 
 
-        // ========= This section will alert admin that user request certifications =======
-        // ========= Use FCM admin app, Sms to notify admin ===============================
-
-
-        // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
-        // NotifyAdminsJob::dispatch($documentRequest->id);
-
+        // =========================
+        // NOTIFICATION (ASYNC JOB)
+        // =========================
         SendAdminNotificationJob::dispatch(
-            'certificate',
+            'resident',
             [
-                'title' => 'New Certification Request',
-                'body' => "New request from {$documentRequest->full_name}",
-                'sms' => "[AlertoPH ALERT]\n{$documentRequest->full_name} requested {$documentRequest->document_type}",
-                'request_id' => $documentRequest->id,
+                'title' => "{$request->barangay} latest news!",
+                'body' => "Latest news posted !",
+                'sms' => "[AlertoPH ALERT]\n{$request->barangay} posted news update!\n",
+                'request_id' => $user->id,
                 'url' => '/certificates'
             ],
             $user->barangay
         );
-
 
         //====================================================================================
 
