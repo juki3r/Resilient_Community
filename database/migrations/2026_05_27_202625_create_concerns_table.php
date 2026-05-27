@@ -29,7 +29,7 @@ return new class extends Migration
                 'rejected'
             ])->default('submitted');
 
-            $table->integer('progress')->default(10);
+            $table->integer('progress')->default(0);
 
             $table->text('admin_reply')->nullable();
             $table->boolean('admin_read')->default(false);

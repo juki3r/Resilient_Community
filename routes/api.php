@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AppUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
+use App\Http\Controllers\Api\ConcernController;
 use App\Http\Controllers\Api\EvacuationCenterController;
 use App\Http\Controllers\Api\EventsController;
 use App\Http\Controllers\Api\IncidentController;
@@ -147,6 +148,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evacuation-centers', [EvacuationCenterController::class, 'store']);
     Route::put('/evacuation-centers/{id}', [EvacuationCenterController::class, 'update']);
     Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
+
+
+    //Concern
+    Route::post('/concerns', [ConcernController::class, 'store']);
 
     Route::post('/save-web-token', [AuthController::class, 'saveWebToken']);
 });
