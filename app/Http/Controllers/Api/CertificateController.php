@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\NotifyAdminsJob;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\Certificate as DocumentRequest;
 use App\Models\MobileUser;
 use App\Models\User;
@@ -217,43 +217,21 @@ class CertificateController extends Controller
 
         // ========= This section will alert admin that user request certifications =======
         // ========= Use FCM admin app, Sms to notify admin ===============================
-        // $admins = User::where('barangay', $user->barangay)
-        //     ->where('role', 'bdrrmo_admin')
-        //     ->get();
 
-        // $title = "New Certification Request";
-        // $body  = "New request from " . $request->full_name;
-
-        // $firebase = new \App\Services\FirebaseService();
-
-        // foreach ($admins as $admin) {
-        //     if ($admin->web_fcm_token) {
-        //         $firebase->sendDataOnlyNotification(
-        //             $admin->web_fcm_token,
-        //             [
-        //                 'title' => $title,
-        //                 'body' => $body,
-        //                 'screen' => 'Requests',
-        //                 'request_id' => (string) $documentRequest->id,
-        //                 'url' => '/certificates',
-        //             ]
-        //         );
-        //     }
-        // }
-        // // ================= SMS =================
-        // foreach ($admins as $admin) {
-        //     if ($admin->phone) {
-        //         Http::withHeaders([
-        //             'X-API-KEY' => env('SMS_API_KEY')
-        //         ])->post('https://carlesppo.com/api/send-sms-api', [
-        //             'phone_number' => $admin->phone,
-        //             'message' => "[AlertoPH ALERT]\n" . $documentRequest->full_name . " is requesting " . $documentRequest->document_type
-        //         ]);
-        //     }
-        // }
 
         // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
-        NotifyAdminsJob::dispatch($documentRequest->id);
+        // NotifyAdminsJob::dispatch($documentRequest->id);
+
+        SendAdminNotificationJob::dispatch(
+            'certificate',
+            [
+                'title' => 'New Certification Request',
+                'body' => "New request from {$documentRequest->full_name}",
+                'sms' => "[AlertoPH ALERT]\n{$documentRequest->full_name} requested {$documentRequest->document_type}",
+                'request_id' => $documentRequest->id
+            ],
+            $user->barangay
+        );
 
 
         //====================================================================================
