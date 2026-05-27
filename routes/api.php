@@ -108,7 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('blotters')->group(function () {
 
-        // Route::get('/', [BlotterController::class, 'index']);
+        Route::get('/', [BlotterController::class, 'index']);
         Route::post('/', [BlotterController::class, 'store']);
         Route::get('/{id}', [BlotterController::class, 'show']);
         Route::put('/{id}', [BlotterController::class, 'update']);
@@ -162,9 +162,6 @@ Route::middleware('auth:sanctum')->get('/appuser/me', function (Request $request
     ]);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/blotters', [BlotterController::class, 'index']);
-});
 
 
 
