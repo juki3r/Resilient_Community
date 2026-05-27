@@ -37,13 +37,20 @@ class SendAdminNotificationJob implements ShouldQueue
 
             // FIREBASE
             if ($admin->web_fcm_token) {
+
                 $firebase->sendDataOnlyNotification(
                     $admin->web_fcm_token,
                     [
-                        'title' => $this->data['title'] ?? 'Notification',
-                        'body'  => $this->data['body'] ?? '',
-                        'type'  => $this->type,
-                        'payload' => $this->data,
+                        'notification' => [
+                            'title' => $this->data['title'] ?? 'Notification',
+                            'body'  => $this->data['body'] ?? '',
+                        ],
+
+                        'data' => [
+                            'type' => $this->type,
+                            'url' => $this->data['url'] ?? '/',
+                            'request_id' => (string)($this->data['request_id'] ?? ''),
+                        ]
                     ]
                 );
             }
