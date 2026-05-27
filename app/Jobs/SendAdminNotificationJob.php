@@ -41,17 +41,12 @@ class SendAdminNotificationJob implements ShouldQueue
                 "message" => [
                     "token" => $admin->web_fcm_token,
 
-                    "notification" => [
-                        "title" => "Try",
-                        "body"  => $this->data['body'],
-                    ],
-
                     "data" => [
-                        "url" => $this->data['url'] ?? "/",
-                        "type" => $this->type,
+                        "title" => $this->data['title'],
+                        "body"  => $this->data['body'],
+                        "url"   => $this->data['url'] ?? "/",
+                        "type"  => $this->type,
                         "request_id" => (string) $this->data['request_id'],
-                        "title" => $this->data['title'],   // 👈 ADD THIS
-                        "body"  => $this->data['body'],    // 👈 ADD THIS
                     ]
                 ]
             ]);
