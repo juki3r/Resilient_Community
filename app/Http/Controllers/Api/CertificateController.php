@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\NotifyAdminsJob;
 use App\Models\Certificate as DocumentRequest;
 use App\Models\MobileUser;
 use App\Models\User;
@@ -216,54 +217,43 @@ class CertificateController extends Controller
 
         // ========= This section will alert admin that user request certifications =======
         // ========= Use FCM admin app, Sms to notify admin ===============================
-        $admins = User::where('barangay', $user->barangay)
-            ->where('role', 'bdrrmo_admin')
-            ->get();
+        // $admins = User::where('barangay', $user->barangay)
+        //     ->where('role', 'bdrrmo_admin')
+        //     ->get();
 
-        $title = "New Certification Request";
-        $body  = "New request from " . $request->full_name;
+        // $title = "New Certification Request";
+        // $body  = "New request from " . $request->full_name;
 
-        $firebase = new \App\Services\FirebaseService();
+        // $firebase = new \App\Services\FirebaseService();
 
-        foreach ($admins as $admin) {
-            if ($admin->web_fcm_token) {
-                $firebase->sendDataOnlyNotification(
-                    $admin->web_fcm_token,
-                    [
-                        'title' => $title,
-                        'body' => $body,
-                        'screen' => 'Requests',
-                        'request_id' => (string) $documentRequest->id,
-                        'url' => '/certificates',
-                    ]
-                );
-            }
-        }
-        // ================= SMS =================
-        foreach ($admins as $admin) {
-            if ($admin->phone) {
-                Http::withHeaders([
-                    'X-API-KEY' => env('SMS_API_KEY')
-                ])->post('https://carlesppo.com/api/send-sms-api', [
-                    'phone_number' => $admin->phone,
-                    'message' => "[AlertoPH ALERT]\n" . $documentRequest->full_name . " is requesting " . $documentRequest->document_type
-                ]);
-            }
-        }
-
-        // try {
-        //     if ($user->phone) {
+        // foreach ($admins as $admin) {
+        //     if ($admin->web_fcm_token) {
+        //         $firebase->sendDataOnlyNotification(
+        //             $admin->web_fcm_token,
+        //             [
+        //                 'title' => $title,
+        //                 'body' => $body,
+        //                 'screen' => 'Requests',
+        //                 'request_id' => (string) $documentRequest->id,
+        //                 'url' => '/certificates',
+        //             ]
+        //         );
+        //     }
+        // }
+        // // ================= SMS =================
+        // foreach ($admins as $admin) {
+        //     if ($admin->phone) {
         //         Http::withHeaders([
         //             'X-API-KEY' => env('SMS_API_KEY')
         //         ])->post('https://carlesppo.com/api/send-sms-api', [
-        //             'phone_number' => $user->phone,
-        //             'message' => "[Daan Banwa ALERT]\n$title\n$body"
+        //             'phone_number' => $admin->phone,
+        //             'message' => "[AlertoPH ALERT]\n" . $documentRequest->full_name . " is requesting " . $documentRequest->document_type
         //         ]);
         //     }
-        // } catch (\Exception $e) {
-        //     \Log::error('SMS failed: ' . $e->getMessage());
         // }
 
+        // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
+        NotifyAdminsJob::dispatch($documentRequest->id);
 
 
         //====================================================================================
