@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\Blotter;
 use App\Models\MobileUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 
 class BlotterController extends Controller
@@ -217,7 +218,29 @@ class BlotterController extends Controller
             $validated['barangay'] = $mobileuser->barangay;
 
             $blotter = Blotter::create($validated);
+
+
+            // ========= This section will alert admin that user request certifications =======
+            // ========= Use FCM admin app, Sms to notify admin ===============================
+
+
+            // ONLY THIS LINE (NO LOOPS, NO SMS, NO FIREBASE HERE)
+            // NotifyAdminsJob::dispatch($documentRequest->id);
+
+            SendAdminNotificationJob::dispatch(
+                'certificate',
+                [
+                    'title' => 'New Blotter Report',
+                    'body' => "New blotter from {$request->complainant_name}",
+                    'sms' => "[AlertoPH ALERT]\n{$request->complainant_name} submitted a blotter report!",
+                    'request_id' => $request->complainant_id,
+                    'url' => '/certificates'
+                ],
+                $mobileuser->barangay
+            );
         });
+
+
 
         return response()->json([
             'message' => 'Blotter created successfully',
