@@ -55,15 +55,15 @@ class SendAdminNotificationJob implements ShouldQueue
                     ]
                 ]
             ]);
-        }
 
-        if ($admin->phone) {
-            Http::withHeaders([
-                'X-API-KEY' => env('SMS_API_KEY')
-            ])->post('https://carlesppo.com/api/send-sms-api', [
-                'phone_number' => $admin->phone,
-                'message' => $this->data['sms'] ?? $this->data['body']
-            ]);
+            if ($admin->phone) {
+                Http::withHeaders([
+                    'X-API-KEY' => env('SMS_API_KEY')
+                ])->post('https://carlesppo.com/api/send-sms-api', [
+                    'phone_number' => $admin->phone,
+                    'message' => $this->data['sms'] ?? $this->data['body']
+                ]);
+            }
         }
     }
 }
