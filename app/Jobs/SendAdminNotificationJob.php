@@ -26,7 +26,9 @@ class SendAdminNotificationJob implements ShouldQueue
         $firebase = new FirebaseService();
 
         $admins = User::where('role', 'bdrrmo_admin')
-            ->when($this->barangay, fn($q) =>
+            ->when(
+                $this->barangay,
+                fn($q) =>
                 $q->where('barangay', $this->barangay)
             )
             ->get();
@@ -53,14 +55,13 @@ class SendAdminNotificationJob implements ShouldQueue
             ]);
         }
 
-            if ($admin->phone) {
-                Http::withHeaders([
-                    'X-API-KEY' => env('SMS_API_KEY')
-                ])->post('https://carlesppo.com/api/send-sms-api', [
-                    'phone_number' => $admin->phone,
-                    'message' => $this->data['sms'] ?? $this->data['body']
-                ]);
-            }
+        if ($admin->phone) {
+            Http::withHeaders([
+                'X-API-KEY' => env('SMS_API_KEY')
+            ])->post('https://carlesppo.com/api/send-sms-api', [
+                'phone_number' => $admin->phone,
+                'message' => $this->data['sms'] ?? $this->data['body']
+            ]);
         }
     }
 }
