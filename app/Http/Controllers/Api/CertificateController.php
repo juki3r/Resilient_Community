@@ -228,7 +228,8 @@ class CertificateController extends Controller
                 'title' => 'New Certification Request',
                 'body' => "New request from {$documentRequest->full_name}",
                 'sms' => "[AlertoPH ALERT]\n{$documentRequest->full_name} requested {$documentRequest->document_type}",
-                'request_id' => $documentRequest->id
+                'request_id' => $documentRequest->id,
+                'url' => '/certificates'
             ],
             $user->barangay
         );

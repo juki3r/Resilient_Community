@@ -16,9 +16,9 @@ class SendAdminNotificationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public string $type,        // e.g. "certificate", "blotter"
-        public array $data,         // dynamic payload
-        public $barangayId = null,
+        public string $type,
+        public array $data,
+        public ?string $barangay = null
     ) {}
 
     public function handle()
@@ -27,15 +27,14 @@ class SendAdminNotificationJob implements ShouldQueue
 
         $admins = User::where('role', 'bdrrmo_admin');
 
-        if ($this->barangayId) {
-            $admins->where('barangay', $this->barangayId);
+        if ($this->barangay) {
+            $admins->where('barangay', $this->barangay);
         }
 
         $admins = $admins->get();
 
         foreach ($admins as $admin) {
 
-            // FIREBASE
             if ($admin->web_fcm_token) {
 
                 $firebase->sendDataOnlyNotification(
@@ -55,7 +54,6 @@ class SendAdminNotificationJob implements ShouldQueue
                 );
             }
 
-            // SMS
             if ($admin->phone) {
                 Http::withHeaders([
                     'X-API-KEY' => env('SMS_API_KEY')
