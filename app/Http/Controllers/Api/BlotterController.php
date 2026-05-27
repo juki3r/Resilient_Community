@@ -270,7 +270,7 @@ class BlotterController extends Controller
         }
 
         $title = "Blotter report Update";
-        $body  = "Your blotter reprot has been " . $request->status;
+        $body  = "Your blotter report has been " . $request->status;
 
         // ================= FCM =================
         if ($user->fcm_token) {
