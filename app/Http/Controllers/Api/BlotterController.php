@@ -165,19 +165,22 @@ class BlotterController extends Controller
 
     public function store_appuser(Request $request)
     {
+
+
+
         $validated = $request->validate([
-            'incident_type' => 'required|string',
+            'incident_type' => 'required|string', //complied
             'incident_category' => 'nullable|string',
-            'incident_date' => 'required|date',
+            'incident_date' => 'required|date', //complied
             'incident_time' => 'nullable',
-            'incident_location' => 'required|string',
-            'incident_details' => 'required|string',
+            'incident_location' => 'required|string', //complied
+            'incident_details' => 'required|string', //complied
 
             'complainant_id' => 'nullable|exists:residents,id',
-            'complainant_name' => 'required|string',
+            'complainant_name' => 'required|string', //complied
 
             'respondent_id' => 'nullable|exists:residents,id',
-            'respondent_name' => 'nullable|string',
+            'respondent_name' => 'nullable|string', //complied
 
             'status' => 'nullable|string',
             'priority_level' => 'nullable|string',
@@ -186,6 +189,7 @@ class BlotterController extends Controller
         $blotter = null;
 
         DB::transaction(function () use (&$validated, &$blotter, $request) {
+            $mobileuser = auth()->user();
 
             $year = date('Y');
 
@@ -206,7 +210,7 @@ class BlotterController extends Controller
 
             $validated['status'] = $validated['status'] ?? 'Pending';
             $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
-            $validated['user_id'] = $request->user()->id;
+            $validated['complainant_id'] = $mobileuser->id;
 
             $blotter = Blotter::create($validated);
         });
