@@ -155,7 +155,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     //Concerns
+    // GET all concerns (with search + pagination)
     Route::get('/concerns', [ConcernController::class, 'index']);
+    // UPDATE STATUS
+    Route::put('/concerns/{id}/status', [ConcernController::class, 'updateStatus']);
+    // DELETE concern
+    Route::delete('/concerns/{id}', [ConcernController::class, 'destroy']);
 
 
     Route::post('/save-web-token', [AuthController::class, 'saveWebToken']);
