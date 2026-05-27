@@ -220,10 +220,6 @@ class CertificateController extends Controller
             ->where('role', 'bdrrmo_admin')
             ->get();
 
-        if ($admins->isEmpty()) {
-            return response()->json(['message' => 'admin not found'], 404);
-        }
-
         $title = "New Certification Request";
         $body  = "New request from " . $request->full_name;
 
@@ -231,14 +227,14 @@ class CertificateController extends Controller
 
         foreach ($admins as $admin) {
             if ($admin->web_fcm_token) {
-                $firebase->sendNotification(
+                $firebase->sendDataOnlyNotification(
                     $admin->web_fcm_token,
-                    $title,
-                    $body,
                     [
+                        'title' => $title,
+                        'body' => $body,
                         'screen' => 'Requests',
                         'request_id' => (string) $documentRequest->id,
-                        'url' => 'https://google.com',
+                        'url' => '/certificates',
                     ]
                 );
             }
@@ -250,7 +246,6 @@ class CertificateController extends Controller
 
         return response()->json([
             'message' => 'Request submitted successfully',
-            'data' => $documentRequest
         ]);
     }
 }

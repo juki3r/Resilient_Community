@@ -71,7 +71,7 @@ class FirebaseService
                     'message' => [
                         'token' => $fcmToken,
 
-                        // 🔥 DATA ONLY (NO notification block)
+                        // 🔥 DATA ONLY
                         'data' => array_map('strval', $data),
                     ],
                 ],
@@ -81,9 +81,7 @@ class FirebaseService
         } catch (\Exception $e) {
             Log::error('Firebase send error: ' . $e->getMessage());
 
-            return [
-                'error' => $e->getMessage(),
-            ];
+            return ['error' => $e->getMessage()];
         }
     }
 
