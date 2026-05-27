@@ -33,6 +33,25 @@ class ConcernController extends Controller
         return $query->paginate(10);
     }
 
+    public function index_appuser(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $query = Concern::where('user_id', $user->id)
+            ->where('barangay', $user->barangay)
+            ->latest();
+
+        return response()->json([
+            'message' => 'Fetch data is succesful',
+            'concerns' => $query,
+        ]);
+    }
+
+
     public function store_appuser(Request $request)
     {
 

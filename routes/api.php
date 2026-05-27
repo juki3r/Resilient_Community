@@ -80,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Concern
     Route::post('/appuser/concerns', [ConcernController::class, 'store_appuser']);
+    Route::get('/appuser/concerns', [ConcernController::class, 'index_appuser']);
 
 
 
