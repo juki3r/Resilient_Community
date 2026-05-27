@@ -71,8 +71,18 @@ class FirebaseService
                     'message' => [
                         'token' => $fcmToken,
 
-                        // 🔥 DATA ONLY
-                        'data' => array_map('strval', $data),
+                        // 🔥 ALWAYS include notification (THIS FIXES EVERYTHING)
+                        'notification' => [
+                            'title' => $data['title'] ?? 'Notification',
+                            'body'  => $data['body'] ?? '',
+                        ],
+
+                        // 🔥 SAFE DATA
+                        'data' => [
+                            'type' => (string) ($data['type'] ?? ''),
+                            'url' => (string) ($data['url'] ?? '/'),
+                            'request_id' => (string) ($data['request_id'] ?? ''),
+                        ],
                     ],
                 ],
             ]);

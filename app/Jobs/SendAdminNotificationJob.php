@@ -35,7 +35,7 @@ class SendAdminNotificationJob implements ShouldQueue
 
             if (!$admin->web_fcm_token) continue;
 
-            $firebase->send($admin->web_fcm_token, [
+            $firebase->sendDataOnlyNotification($admin->web_fcm_token, [
                 "message" => [
                     "token" => $admin->web_fcm_token,
 
