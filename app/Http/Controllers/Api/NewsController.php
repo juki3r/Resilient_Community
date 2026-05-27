@@ -102,9 +102,9 @@ class NewsController extends Controller
         SendAdminNotificationJob::dispatch(
             'resident',
             [
-                'title' => "{$request->barangay} latest news!",
+                'title' => "{$user->barangay} latest news!",
                 'body' => "Latest news posted !",
-                'sms' => "[AlertoPH ALERT]\n{$request->barangay} posted news update!\n",
+                'sms' => "[AlertoPH ALERT]\n{$user->barangay} posted news update!\n",
                 'request_id' => $user->id,
                 'url' => '/certificates'
             ],
