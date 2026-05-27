@@ -15,6 +15,8 @@ class FirebaseService
         $this->credentialsPath = config_path('firebase/firebase-adminsdk.json');
     }
 
+
+    // ================= this is for mobile app ========================
     public function sendNotification($fcmToken, $title, $body, $data = [])
     {
         try {
