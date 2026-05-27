@@ -97,9 +97,9 @@ class OrdinanceController extends Controller
         SendAdminNotificationJob::dispatch(
             'resident',
             [
-                'title' => "{$user->barangay} added new ordinance!",
-                'body' => "New ordinance added !",
-                'sms' => "[AlertoPH ALERT]\n{$user->barangay} added new ordinance!\n",
+                'title' => "Barangay {$user->barangay}!",
+                'body' => "Barangay {$user->barangay} added new ordinance!",
+                'sms' => "[AlertoPH ALERT]\n Barangay {$user->barangay} added new ordinance!\n",
                 'request_id' => $user->id,
                 'url' => '/ordinance'
             ],
