@@ -231,8 +231,6 @@ class NewsController extends Controller
             $validated['published_at'] = now();
         }
 
-
-
         $news->update($validated);
 
         return response()->json([
