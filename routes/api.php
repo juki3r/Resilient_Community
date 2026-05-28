@@ -83,6 +83,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appuser/concerns', [ConcernController::class, 'index_appuser']);
 
 
+    //Canlendar or events
+    Route::get('/appuser/events', [ConcernController::class, 'index']);
+
+
 
     //=========================== WEB =======================================================
 
