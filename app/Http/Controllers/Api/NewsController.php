@@ -194,6 +194,7 @@ class NewsController extends Controller
             'content' => 'sometimes|string',
             'category' => 'nullable|string',
             'status' => 'nullable|in:draft,published',
+            'priority' => 'required|in:normal,important,urgent',
             'image' => 'nullable|image|max:20480',
         ]);
 
