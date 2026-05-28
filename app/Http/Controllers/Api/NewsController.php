@@ -26,7 +26,7 @@ class NewsController extends Controller
             });
         }
 
-        return $query->paginate(10);
+        return response()->json($query);
     }
 
     public function index_appuser(Request $request)
