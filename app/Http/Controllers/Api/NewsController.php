@@ -90,6 +90,7 @@ class NewsController extends Controller
         $validated['user_id'] = auth()->id();
         $validated['barangay'] = $user->barangay;
         $validated['status'] = $validated['status'] ?? 'draft';
+        $validated['priority'] = $request->priority;
 
         $validated['published_at'] =
             $validated['status'] === 'published' ? now() : null;
@@ -229,6 +230,8 @@ class NewsController extends Controller
         if (isset($validated['status']) && $validated['status'] === 'published') {
             $validated['published_at'] = now();
         }
+
+
 
         $news->update($validated);
 
