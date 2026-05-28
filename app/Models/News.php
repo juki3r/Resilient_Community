@@ -13,6 +13,7 @@ class News extends Model
         'category',
         'image',
         'status',
+        'priority',
         'user_id',
         'published_at',
     ];
