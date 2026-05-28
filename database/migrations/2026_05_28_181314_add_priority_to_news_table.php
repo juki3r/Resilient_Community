@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('news', function (Blueprint $table) {
             $table->enum('priority', ['normal', 'important', 'urgent'])
-                ->default('noraml')
+                ->default('normal')
                 ->after('status');
         });
     }
