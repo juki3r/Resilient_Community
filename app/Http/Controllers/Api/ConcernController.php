@@ -30,7 +30,10 @@ class ConcernController extends Controller
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', "%{$request->search}%")
                     ->orWhere('location', 'like', "%{$request->search}%")
-                    ->orWhere('description', 'like', "%{$request->search}%");
+                    ->orWhere('description', 'like', "%{$request->search}%")
+                    ->orWhereHas('user', function ($u) use ($request) {
+                        $u->where('full_name', 'like', "%{$request->search}%");
+                    });
             });
         }
 
