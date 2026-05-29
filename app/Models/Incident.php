@@ -9,15 +9,16 @@ class Incident extends Model
     protected $fillable = [
         'barangay',
         'incident_no',
-        'incident_type',
-        'category',
+        'type',
         'description',
         'location',
         'reported_by',
         'contact_number',
-        'incident_date',
-        'incident_time',
+        'incident_datetime',
         'status',
         'action_taken',
+        'alert_mdrrmo',
+        'municipality',
+        'province'
     ];
 }

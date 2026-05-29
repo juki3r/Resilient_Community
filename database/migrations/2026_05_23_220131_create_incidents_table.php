@@ -18,25 +18,23 @@ return new class extends Migration
 
             $table->string('incident_no')->unique();
 
-            $table->string('incident_type');
-
-            $table->string('category')->nullable();
+            $table->string('type');
 
             $table->text('description');
 
-            $table->string('location')->nullable();
+            $table->string('location');
 
             $table->string('reported_by')->nullable();
 
             $table->string('contact_number')->nullable();
 
-            $table->date('incident_date');
-
-            $table->time('incident_time')->nullable();
+            $table->timestamp('incident_datetime');
 
             $table->string('status')->default('pending');
             // pending | ongoing | resolved | dismissed
-
+            $table->boolean('alert_mdrrmo')->default(false);
+            $table->string('municipality')->nullable();
+            $table->string('province')->nullable();
             $table->text('action_taken')->nullable();
             $table->timestamps();
         });

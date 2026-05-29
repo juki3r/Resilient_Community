@@ -46,9 +46,14 @@ class IncidentController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $request->validate([
-            'incident_type' => 'required|string|max:255',
-            'category' => 'nullable|string|max:255',
+            'type' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'nullable|string|max:255',
             'reported_by' => 'nullable|string|max:255',
@@ -56,10 +61,8 @@ class IncidentController extends Controller
             'incident_date' => 'required|date',
             'incident_time' => 'nullable',
             'status' => 'nullable|string',
-            'action_taken' => 'nullable|string',
         ]);
 
-        $user = User::find(auth()->id());
 
         $year = date('Y');
 
@@ -79,16 +82,12 @@ class IncidentController extends Controller
         $incident = Incident::create([
             'barangay' => $user->barangay,
             'incident_no' => $incidentNo,
-            'incident_type' => $request->incident_type,
-            'category' => $request->category,
+            'type' => $request->type,
             'description' => $request->description,
             'location' => $request->location,
-            'reported_by' => $request->reported_by,
-            'contact_number' => $request->contact_number,
-            'incident_date' => $request->incident_date,
-            'incident_time' => $request->incident_time,
-            'status' => $request->status ?? 'pending',
-            'action_taken' => $request->action_taken,
+            'reported_by' => $user->full_name,
+            'contact_number' => $user->phone,
+            'incident_datetime' => now(),
         ]);
 
         return response()->json([
