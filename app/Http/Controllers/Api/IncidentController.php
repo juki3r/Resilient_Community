@@ -56,11 +56,6 @@ class IncidentController extends Controller
             'type' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'nullable|string|max:255',
-            'reported_by' => 'nullable|string|max:255',
-            'contact_number' => 'nullable|string|max:255',
-            'incident_date' => 'required|date',
-            'incident_time' => 'nullable',
-            'status' => 'nullable|string',
         ]);
 
 
