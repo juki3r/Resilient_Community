@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\EvacuationCenter;
 use Illuminate\Http\Request;
 
@@ -58,6 +59,18 @@ class EvacuationCenterController extends Controller
 
         $center = EvacuationCenter::create($validated);
 
+        SendAdminNotificationJob::dispatch(
+            'resident',
+            [
+                'title' => "Barangay {$user->barangay}",
+                'body' => "Barangay {$user->barangay} created evacuation center information!",
+                'sms' => "[AlertoPH ALERT]\n Barangay {$user->barangay} posted evacuation center information!\n",
+                'request_id' => $user->id,
+                'url' => '/centers'
+            ],
+            $user->barangay
+        );
+
         return response()->json([
             'message' => 'Evacuation center created successfully',
             'data' => $center
@@ -100,6 +113,19 @@ class EvacuationCenterController extends Controller
         ]);
 
         $center->update($validated);
+
+        SendAdminNotificationJob::dispatch(
+            'resident',
+            [
+                'title' => "Barangay {$user->barangay}",
+                'body' => "Barangay {$user->barangay} update evacuation center information!",
+                'sms' => "[AlertoPH ALERT]\n Barangay {$user->barangay} update evacuation center information!\n",
+                'request_id' => $user->id,
+                'url' => '/centers'
+            ],
+            $user->barangay
+        );
+
 
         return response()->json([
             'message' => 'Evacuation center updated successfully',
