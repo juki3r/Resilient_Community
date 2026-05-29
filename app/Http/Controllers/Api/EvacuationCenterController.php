@@ -38,38 +38,22 @@ class EvacuationCenterController extends Controller
         $user = auth()->user();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255', //complied
             'location' => 'required|string|max:255',
             'capacity' => 'nullable|integer|min:0',
+            'current_occupancy' => 'nullable|integer|min:0',
 
             'contact_person' => 'nullable|string|max:255',
-
-            'event_type' => 'nullable|string|max:255',
             'contact_number' => 'nullable|string|max:20',
 
-            'start_date' => 'nullable|date',
-            'start_time' => 'nullable',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'end_time' => 'nullable',
+            'event_type' => 'nullable|string|max:255',
 
-            'description' => 'nullable|string',
 
-            'status' => 'nullable|in:inactive,active,ongoing,closed',
+            'status' => 'nullable|in:Standby,Open,Full,Closed',
         ]);
 
         $validated['barangay'] = $user->barangay;
         $validated['created_by'] = $user->id;
-
-        // DEFAULT STATUS LOGIC (CLEAN)
-        if (empty($validated['status'])) {
-            if (!empty($validated['start_date']) && empty($validated['end_date'])) {
-                $validated['status'] = 'ongoing';
-            } elseif (!empty($validated['end_date'])) {
-                $validated['status'] = 'closed';
-            } else {
-                $validated['status'] = 'inactive';
-            }
-        }
 
         $center = EvacuationCenter::create($validated);
 

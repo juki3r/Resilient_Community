@@ -13,20 +13,17 @@ class EvacuationCenter extends Model
         'name',
         'location',
         'capacity',
-
+        'current_occupancy',
+        'contact_person',
+        'contact_number',
         'event_type',
-        'description',
-
-        'start_date',
-        'start_time',
-
-        'end_date',
-        'end_time',
-
         'status',
+        'facilities',
 
         'barangay',
         'created_by',
+
+
     ];
 
     // =========================
@@ -47,4 +44,8 @@ class EvacuationCenter extends Model
     {
         return $query->where('barangay', $barangay);
     }
+
+    protected $casts = [
+        'facilities' => 'array',
+    ];
 }

@@ -16,22 +16,20 @@ return new class extends Migration
             // CENTER INFO
             $table->string('name');
             $table->string('location');
+
             $table->integer('capacity')->nullable();
+            $table->integer('current_occupancy')->nullable();
 
             // EVACUATION STATUS
             $table->string('event_type'); // flood, fire, earthquake, etc
-            $table->text('description')->nullable();
-
-            // TIMELINE
-            $table->date('start_date');
-            $table->time('start_time');
-
-            $table->date('end_date')->nullable();
-            $table->time('end_time')->nullable();
 
             // STATUS
-            $table->string('status')->default('active');
+            $table->string('status')->default('Standby');
             // active | ended
+            $table->json('facilities')->nullable();
+
+            $table->string('contact_person')->nullable();
+            $table->string('contact_number')->nullable();
 
             // BARANGAY SCOPE
             $table->string('barangay');
