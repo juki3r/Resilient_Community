@@ -82,6 +82,8 @@ class IncidentController extends Controller
             'location' => $request->location,
             'reported_by' => $user->full_name,
             'contact_number' => $user->phone,
+            'municipality' => $user->municipality,
+            'province' => $user->province,
             'incident_datetime' => now(),
         ]);
 
