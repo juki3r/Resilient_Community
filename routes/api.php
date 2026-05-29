@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\OfficialController;
 use App\Http\Controllers\Api\OrdinanceController;
 use App\Http\Controllers\Api\ResidentController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', function () {
@@ -188,6 +189,25 @@ Route::middleware('auth:sanctum')->get('/appuser/me', function (Request $request
     return response()->json([
         'user' => $request->user()
     ]);
+});
+
+//This for IOT system to fetch and update alert_mdrrmo at incidents table
+Route::get('/incident/alert-status', function () {
+    return response()->json(
+        DB::table('incidents')
+            ->latest()
+            ->first(['id', 'alert_mdrrmo'])
+    );
+});
+
+Route::post('/incident/acknowledge', function (Request $request) {
+    DB::table('incidents')
+        ->where('id', $request->id)
+        ->update([
+            'alert_mdrrmo' => true
+        ]);
+
+    return response()->json(['status' => 'ok']);
 });
 
 
