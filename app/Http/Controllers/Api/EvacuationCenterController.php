@@ -27,9 +27,9 @@ class EvacuationCenterController extends Controller
             });
         }
 
-        return response()->json([
-            'data' => $query->get()
-        ]);
+        return response()->json(
+            $query
+        );
     }
 
     // ================= STORE =================
