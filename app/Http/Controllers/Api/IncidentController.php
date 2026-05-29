@@ -7,6 +7,7 @@ use App\Jobs\SendAdminNotificationJob;
 use App\Models\Incident;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 
 class IncidentController extends Controller
