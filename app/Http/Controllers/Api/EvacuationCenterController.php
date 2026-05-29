@@ -28,7 +28,7 @@ class EvacuationCenterController extends Controller
         }
 
         return response()->json(
-            $query->paginate(10)
+            $query
         );
     }
 
