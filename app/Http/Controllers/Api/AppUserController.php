@@ -42,7 +42,7 @@ class AppUserController extends Controller
         if (!$barangay_belongs) {
             return response()->json([
                 'success' => false,
-                'message' => 'Barangay not found'
+                'message' => 'Your Barangay is not availing this platform!'
             ], 404);
         }
 
