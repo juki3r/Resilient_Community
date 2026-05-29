@@ -199,7 +199,7 @@ Route::get('/incident/alert-status', function () {
     //         ->first(['id', 'alert_mdrrmo'])
     // );
     return response()->json([
-        'data' => $data
+        'message' => 'data'
     ]);
 });
 
