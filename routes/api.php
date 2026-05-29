@@ -89,6 +89,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //Evacuation center
     Route::get('/appuser/evacuation-centers', [EvacuationCenterController::class, 'index']);
 
+    //Evacuation center
+    Route::post('/appuser/incidents', [IncidentController::class, 'store']);
+
+
+
 
 
     //=========================== WEB =======================================================
