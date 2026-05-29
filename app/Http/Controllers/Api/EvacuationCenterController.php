@@ -50,6 +50,7 @@ class EvacuationCenterController extends Controller
 
 
             'status' => 'nullable|in:Standby,Open,Full,Closed',
+            'facilities' => 'nullable|array',
         ]);
 
         $validated['barangay'] = $user->barangay;
