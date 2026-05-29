@@ -86,6 +86,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //Canlendar or events
     Route::get('/appuser/events', [EventsController::class, 'index']);
 
+    //Evacuation center
+    Route::get('/appuser/evacuation-centers', [EvacuationCenterController::class, 'index']);
+
 
 
     //=========================== WEB =======================================================
