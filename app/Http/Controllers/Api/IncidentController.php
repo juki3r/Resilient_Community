@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\Incident;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 
 class IncidentController extends Controller
@@ -86,6 +87,59 @@ class IncidentController extends Controller
             'province' => $user->province,
             'incident_datetime' => now(),
         ]);
+
+        //Send to MDRRMO
+        SendAdminNotificationJob::dispatch(
+            'mdrrmo',
+            [
+                'title' => 'Incident Report',
+                'body' => "New incident report from {$user->full_name}",
+                'sms' => "[AlertoPH ALERT]\n{$user->full_name} submitted an incident report!",
+                'request_id' => $user->id,
+                'url' => '/incidents'
+            ],
+            $user->municipality
+        );
+
+        //Send to BDRRMO
+        SendAdminNotificationJob::dispatch(
+            'admin',
+            [
+                'title' => 'Incident Report',
+                'body' => "New incident report from {$user->full_name}",
+                'sms' => "[AlertoPH ALERT]\n{$user->full_name} submitted an incident report!",
+                'request_id' => $user->id,
+                'url' => '/incidents'
+            ],
+            $user->barangay
+        );
+
+
+        //Send to user reminding the he/she sent an incident report
+        $title = "Incident Report Submitted!";
+        $body  = "Thank you for submitting incident report! \n We will give you an update on this.";
+
+        (new \App\Services\FirebaseService)->sendNotification(
+            $user->fcm_token,
+            $title,
+            $body,
+            [
+                'screen' => 'Home',
+                'request_id' => (string) $request->id,
+            ]
+        );
+
+        //  SEND SMS
+        try {
+            Http::withHeaders([
+                'X-API-KEY' => env('SMS_API_KEY')
+            ])->post('https://carlesppo.com/api/send-sms-api', [
+                'phone_number' => $user->phone,
+                'message' => "[AlertoPH]\n$title\n$body"
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('SMS failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Incident created successfully',

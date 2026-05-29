@@ -82,7 +82,7 @@ class ConcernController extends Controller
         // NotifyAdminsJob::dispatch($documentRequest->id);
 
         SendAdminNotificationJob::dispatch(
-            'admin',
+            'admin', //this will be the type
             [
                 'title' => 'New Concern',
                 'body' => "New concern from {$user->full_name}",
@@ -90,7 +90,7 @@ class ConcernController extends Controller
                 'request_id' => $user->id,
                 'url' => '/concerns'
             ],
-            $user->barangay
+            $user->barangay // this will be the barangay
         );
 
 

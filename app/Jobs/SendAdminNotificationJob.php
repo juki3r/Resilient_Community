@@ -19,7 +19,8 @@ class SendAdminNotificationJob implements ShouldQueue
     public function __construct(
         public string $type,
         public array $data,
-        public ?string $barangay = null
+        public ?string $barangay = null,
+        public ?string $municipality = null
     ) {}
 
     public function handle()
@@ -27,12 +28,13 @@ class SendAdminNotificationJob implements ShouldQueue
         // route by role type
         match ($this->type) {
             'resident' => $this->sendToResidents(),
+            'mdrrmo' => $this->sendToMDRRMO(),
             default => $this->sendToAdmins(),
         };
     }
 
     /* =========================
-        ADMINS NOTIFICATION
+        ADMINS NOTIFICATION BDRRMO
     ========================== */
     private function sendToAdmins()
     {
@@ -42,6 +44,42 @@ class SendAdminNotificationJob implements ShouldQueue
             ->when(
                 $this->barangay,
                 fn($q) => $q->where('barangay', $this->barangay)
+            )
+            ->get();
+
+        foreach ($admins as $admin) {
+
+            if (!$admin->web_fcm_token) continue;
+
+            $firebase->sendDataOnlyNotification($admin->web_fcm_token, [
+                "message" => [
+                    "token" => $admin->web_fcm_token,
+
+                    "data" => [
+                        "title" => $this->data['title'],
+                        "body"  => $this->data['body'],
+                        "url"   => $this->data['url'] ?? "/",
+                        "type"  => $this->type,
+                        "request_id" => (string) $this->data['request_id'],
+                    ]
+                ]
+            ]);
+
+            $this->sendSms($admin);
+        }
+    }
+
+    /* =========================
+        ADMINS NOTIFICATION MDRRMO and BDRRMO for Incidents / Emergencies
+    ========================== */
+    private function sendToMDRRMO()
+    {
+        $firebase = new FirebaseService();
+
+        $admins = User::whereIn('role', 'mdrrmo_admin')
+            ->when(
+                $this->municipality,
+                fn($q) => $q->where('municipality', $this->municipality)
             )
             ->get();
 
