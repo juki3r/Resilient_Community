@@ -506,18 +506,7 @@ class AppUserController extends Controller
         );
     }
 
-    // ================= SINGLE USER =================
-    public function show($id)
-    {
-        $user = MobileUser::findOrFail($id);
 
-        return response()->json($user);
-    }
-
-    public function show(MobileUser $mobileUser)
-    {
-        return response()->json($mobileUser);
-    }
 
     public function update(Request $request, MobileUser $mobileUser)
     {
