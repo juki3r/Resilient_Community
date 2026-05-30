@@ -40,6 +40,8 @@ class User extends Authenticatable
         'otp_expires_at',
         'is_logged_in',
         'web_fcm_token',
+        'fb_page_id',
+        'fb_page_token',
     ];
 
     /**
