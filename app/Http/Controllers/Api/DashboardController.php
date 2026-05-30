@@ -18,32 +18,72 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
+        $role = $user->role;
         $barangay = $user->barangay;
+        $municipality = $user->municipality;
+
+        // ================= BASE QUERY SCOPE =================
+        $residentQuery = Resident::query();
+        $incidentQuery = Incident::query();
+        $blotterQuery = Blotter::query();
+        $concernQuery = Concern::query();
+        $certificateQuery = Certificate::query();
+        $appUserQuery = MobileUser::query();
+        $ordinanceQuery = Ordinance::query();
+
+        if ($role === "bdrrmo_admin") {
+            $residentQuery->where('barangay', $barangay);
+            $incidentQuery->where('barangay', $barangay);
+            $blotterQuery->where('barangay', $barangay);
+            $concernQuery->where('barangay', $barangay);
+            $certificateQuery->where('barangay', $barangay);
+            $appUserQuery->where('barangay', $barangay);
+            $ordinanceQuery->where('barangay', $barangay);
+        }
+
+        if ($role === "mdrrmo_admin") {
+            $residentQuery->where('municipality', $municipality);
+            $incidentQuery->where('municipality', $municipality);
+            $blotterQuery->where('municipality', $municipality);
+            $concernQuery->where('municipality', $municipality);
+            $certificateQuery->where('municipality', $municipality);
+            $appUserQuery->where('municipality', $municipality);
+            $ordinanceQuery->where('municipality', $municipality);
+        }
 
         return response()->json([
-            "residents" => Resident::where('barangay', $barangay)->count(),
-            "voters" => Resident::where('barangay', $barangay)->where('is_voter', 1)->count(),
-            "male" => Resident::where('barangay', $barangay)->where('gender', 'Male')->count(),
-            "female" => Resident::where('barangay', $barangay)->where('gender', 'Female')->count(),
+            "role" => $role,
 
-            "blotters" => Blotter::where('barangay', $barangay)->count(),
-            "concerns" => Concern::where('barangay', $barangay)->count(),
-            "certificates" => Certificate::where('barangay', $barangay)->count(),
+            // ================= STATS =================
+            "residents" => $residentQuery->count(),
+            "voters" => (clone $residentQuery)->where('is_voter', 1)->count(),
+            "male" => (clone $residentQuery)->where('gender', 'Male')->count(),
+            "female" => (clone $residentQuery)->where('gender', 'Female')->count(),
 
-            "app_users" => MobileUser::where('barangay', $barangay)->count(),
-            "ordinances" => Ordinance::where('barangay', $barangay)->count(),
-            "incidents" => Incident::where('barangay', $barangay)->count(),
+            "blotters" => $blotterQuery->count(),
+            "concerns" => $concernQuery->count(),
+            "certificates" => $certificateQuery->count(),
 
-            // CHART DATA
-            "incident_trend" => Incident::selectRaw("DATE(created_at) as date, COUNT(*) as total")
-                ->where('barangay', $barangay)
+            "app_users" => $appUserQuery->count(),
+            "ordinances" => $ordinanceQuery->count(),
+            "incidents" => $incidentQuery->count(),
+
+            // ================= CHARTS =================
+            "incident_trend" => $incidentQuery
+                ->selectRaw("DATE(created_at) as date, COUNT(*) as total")
                 ->groupBy('date')
                 ->orderBy('date')
                 ->get(),
 
             "gender_distribution" => [
-                ["name" => "Male", "value" => Resident::where('barangay', $barangay)->where('gender', 'Male')->count()],
-                ["name" => "Female", "value" => Resident::where('barangay', $barangay)->where('gender', 'Female')->count()],
+                [
+                    "name" => "Male",
+                    "value" => (clone $residentQuery)->where('gender', 'Male')->count()
+                ],
+                [
+                    "name" => "Female",
+                    "value" => (clone $residentQuery)->where('gender', 'Female')->count()
+                ],
             ],
         ]);
     }
