@@ -169,9 +169,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
 
     //App Users
-
     Route::get('/appusers', [AppUserController::class, 'index']);
     Route::get('/appusers/{id}', [AppUserController::class, 'show']);
+    Route::patch('/appusers/{id}/verify', [AppUserController::class, 'verifyPhone']);
+    Route::patch('/appusers/{id}/grant', [AppUserController::class, 'grantAccess']);
 
 
     //Concerns

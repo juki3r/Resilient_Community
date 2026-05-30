@@ -507,6 +507,35 @@ class AppUserController extends Controller
     }
 
 
+    public function verifyPhone($id)
+    {
+        $user = MobileUser::findOrFail($id);
+
+        $user->update([
+            'phone_verified' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'Phone verified successfully',
+            'data' => $user
+        ]);
+    }
+
+    public function grantAccess($id)
+    {
+        $user = MobileUser::findOrFail($id);
+
+        $user->update([
+            'granted' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'User granted successfully',
+            'data' => $user
+        ]);
+    }
+
+
 
     public function update(Request $request, MobileUser $mobileUser)
     {
