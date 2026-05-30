@@ -111,6 +111,16 @@ class DashboardController extends Controller
                         ->count()
                 ],
             ],
+            "live_incidents" => $incidentQuery
+                ->latest()
+                ->take(10)
+                ->get([
+                    'id',
+                    'type',
+                    'location',
+                    'status',
+                    'created_at'
+                ]),
 
 
         ]);
