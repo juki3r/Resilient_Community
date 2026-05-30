@@ -84,7 +84,7 @@ class IncidentController extends Controller
             'type' => $request->type,
             'description' => $request->description,
             'location' => $request->location,
-            'reported_by' => $user->full_name,
+            'reported_by' => $user->fullname,
             'contact_number' => $user->phone,
             'municipality' => $user->municipality,
             'province' => $user->province,
