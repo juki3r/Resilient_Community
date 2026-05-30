@@ -15,22 +15,38 @@ class ResidentController extends Controller
     {
         $user = auth()->user();
 
-        $query = Resident::where('barangay', $user->barangay)
-            ->orderBy('created_at', 'desc');
-        // $query = Resident::query();
+        $query = Resident::where('barangay', $user->barangay);
 
-        if ($request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('first_name', 'like', "%{$request->search}%")
-                    ->orWhere('last_name', 'like', "%{$request->search}%")
-                    ->orWhere('household_number', 'like', "%{$request->search}%")
-                    ->orWhere('barangay', 'like', "%{$request->search}%")
-                    ->orWhere('resident_code', 'like', "%{$request->search}%");
+        // SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('household_number', 'like', "%{$search}%")
+                    ->orWhere('barangay', 'like', "%{$search}%")
+                    ->orWhere('resident_code', 'like', "%{$search}%");
             });
         }
 
+        // FILTER: gender
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        // FILTER: civil status
+        if ($request->filled('civil_status')) {
+            $query->where('civil_status', $request->civil_status);
+        }
+
+        // FILTER: voter
+        if ($request->filled('is_voter')) {
+            $query->where('is_voter', $request->is_voter);
+        }
+
         return response()->json(
-            $query->latest()->paginate(10)
+            $query->orderBy('created_at', 'desc')->paginate(10)
         );
     }
 
