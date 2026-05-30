@@ -8,6 +8,8 @@ class Incident extends Model
 {
     protected $fillable = [
         'barangay',
+        'user_id',
+        'mobileuser_id',
         'incident_no',
         'type',
         'description',

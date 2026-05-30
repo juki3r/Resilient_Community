@@ -15,6 +15,14 @@ return new class extends Migration
             $table->id();
 
             $table->string('barangay');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+            $table->foreignId('mobileuser_id')
+                ->nullable()
+                ->constrained('mobile_users')
+                ->nullOnDelete();
 
             $table->string('incident_no')->unique();
 
