@@ -18,16 +18,26 @@ class IncidentController extends Controller
      */
     public function index(Request $request)
     {
-        $user = User::find(auth()->id());
+        $user = auth()->user();
 
-        $query = Incident::where('barangay', $user->barangay);
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
-        if ($request->search) {
+        $query = Incident::query();
 
+        // Scope by role
+        if ($user->role === "bdrrmo_admin") {
+            $query->where('barangay', $user->barangay);
+        } else {
+            $query->where('municipality', $user->municipality);
+        }
+
+        // Search filter (shared logic)
+        if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
-
                 $q->where('incident_no', 'like', "%{$search}%")
                     ->orWhere('incident_type', 'like', "%{$search}%")
                     ->orWhere('category', 'like', "%{$search}%")
@@ -37,11 +47,9 @@ class IncidentController extends Controller
             });
         }
 
-        $incidents = $query
-            ->latest()
-            ->paginate(10);
-
-        return response()->json($incidents);
+        return response()->json(
+            $query->latest()->paginate(10)
+        );
     }
 
     /**
