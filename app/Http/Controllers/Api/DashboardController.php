@@ -111,14 +111,21 @@ class DashboardController extends Controller
                         ->count()
                 ],
             ],
-            "live_incidents" => $incidentQuery
-                ->latest()
-                ->take(10)
+            "live_incidents" => Incident::query()
+                ->when($role === "bdrrmo_admin", function ($q) use ($barangay) {
+                    $q->where('barangay', $barangay);
+                })
+                ->when($role === "mdrrmo_admin", function ($q) use ($municipality) {
+                    $q->where('municipality', $municipality);
+                })
+                ->orderByDesc('created_at')
+                ->limit(10)
                 ->get([
                     'id',
                     'type',
                     'location',
                     'status',
+                    'incident_datetime',
                     'created_at'
                 ]),
 
