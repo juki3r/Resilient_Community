@@ -32,6 +32,7 @@ return [
         'http://localhost:5173',
         'http://127.0.0.1:5173',
         'https://ajcpisonet.com',
+        'https://mdrrmo-web-five.vercel.app/',
     ],
 
     'allowed_headers' => ['*'],
