@@ -288,35 +288,35 @@ class IncidentController extends Controller
 
         //We will notify the resident submits the alert incident
         // ✅ FIXED USER LOOKUP
-        $mobileuser = MobileUser::find($incident->complainant_id);
+        $mobileuser = MobileUser::find($incident->mobileuser_id);
 
-        if (!$user) {
+        if (!$mobileuser) {
             return response()->json(['message' => 'User not found']);
         }
 
-        $title = "Blotter report Update";
-        $body  = "Your blotter report has been " . $request->status;
+        $title = "Incident report Update";
+        $body  = "Your incident report has been " . $request->status;
 
         // ================= FCM =================
-        if ($user->fcm_token) {
+        if ($mobileuser->fcm_token) {
             (new \App\Services\FirebaseService)->sendNotification(
-                $user->fcm_token,
+                $mobileuser->fcm_token,
                 $title,
                 $body,
                 [
-                    'screen' => 'Requests',
-                    'requests_id' => (string) $blotter->id,
+                    'screen' => 'Home',
+                    'requests_id' => (string) $incident->id,
                 ]
             );
         }
 
         // ================= SMS =================
         try {
-            if ($user->phone) {
+            if ($mobileuser->phone) {
                 Http::withHeaders([
                     'X-API-KEY' => env('SMS_API_KEY')
                 ])->post('https://carlesppo.com/api/send-sms-api', [
-                    'phone_number' => $user->phone,
+                    'phone_number' => $mobileuser->phone,
                     'message' => "[AlertoPH ALERT]\n$title\n$body"
                 ]);
             }
