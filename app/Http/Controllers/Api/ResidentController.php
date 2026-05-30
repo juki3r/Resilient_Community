@@ -203,6 +203,7 @@ class ResidentController extends Controller
             'civil_status' => 'sometimes|required|string',
             'barangay' => 'sometimes|required|string',
             'purok_zone' => 'sometimes|required|string',
+            'mobile_number' => 'sometimes|required|string',
         ]);
 
         $resident->update($validated);
