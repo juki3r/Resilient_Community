@@ -69,7 +69,7 @@ class ResidentController extends Controller
             'region' => 'nullable|string',
             'province' => 'nullable|string',
             'city_municipality' => 'nullable|string',
-            'barangay' => 'required|string',
+            'barangay' => 'nullable|string',
             'purok_zone' => 'required|string',
             'street_address' => 'nullable|string',
             'full_address_text' => 'nullable|string',
