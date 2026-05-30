@@ -67,9 +67,6 @@ class ResidentController extends Controller
 
             // ADDRESS
             'region' => 'nullable|string',
-            'province' => 'nullable|string',
-            'city_municipality' => 'nullable|string',
-            'barangay' => 'nullable|string',
             'purok_zone' => 'required|string',
             'street_address' => 'nullable|string',
             'full_address_text' => 'nullable|string',
@@ -156,6 +153,8 @@ class ResidentController extends Controller
             $validated['age'] = now()->diffInYears($request->birth_date);
         }
         $validated['barangay'] = $user->barangay;
+        $validated['city_municipality'] = $user->municipality;
+        $validated['province'] = $user->province;
         $validated['created_by'] = $user->id;
         $resident = Resident::create($validated);
 
