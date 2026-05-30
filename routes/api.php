@@ -173,6 +173,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/appusers/{id}', [AppUserController::class, 'show']);
     Route::patch('/appusers/{id}/verify', [AppUserController::class, 'verifyPhone']);
     Route::patch('/appusers/{id}/grant', [AppUserController::class, 'grantAccess']);
+    Route::patch('/appusers/{id}/deny', [AppUserController::class, 'denyAccess']);
 
 
     //Concerns

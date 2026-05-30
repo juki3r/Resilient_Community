@@ -535,6 +535,20 @@ class AppUserController extends Controller
         ]);
     }
 
+    public function denyAccess($id)
+    {
+        $user = MobileUser::findOrFail($id);
+
+        $user->update([
+            'granted' => false,
+        ]);
+
+        return response()->json([
+            'message' => 'Access revoked successfully',
+            'data' => $user
+        ]);
+    }
+
 
 
     public function update(Request $request, MobileUser $mobileUser)
