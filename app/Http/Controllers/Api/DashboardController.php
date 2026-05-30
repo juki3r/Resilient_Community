@@ -85,6 +85,34 @@ class DashboardController extends Controller
                     "value" => (clone $residentQuery)->where('gender', 'Female')->count()
                 ],
             ],
+            "age_distribution" => [
+                [
+                    "range" => "0-17",
+                    "count" => Resident::where('barangay', $barangay)
+                        ->whereBetween('age', [0, 17])
+                        ->count()
+                ],
+                [
+                    "range" => "18-30",
+                    "count" => Resident::where('barangay', $barangay)
+                        ->whereBetween('age', [18, 30])
+                        ->count()
+                ],
+                [
+                    "range" => "31-59",
+                    "count" => Resident::where('barangay', $barangay)
+                        ->whereBetween('age', [31, 59])
+                        ->count()
+                ],
+                [
+                    "range" => "60+",
+                    "count" => Resident::where('barangay', $barangay)
+                        ->where('age', '>=', 60)
+                        ->count()
+                ],
+            ],
+
+
         ]);
     }
 }
