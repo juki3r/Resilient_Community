@@ -38,7 +38,7 @@ class IncidentController extends Controller
 
         $incidents = $query
             ->latest()
-            ->paginate(3);
+            ->paginate(1);
 
         return response()->json($incidents);
     }
