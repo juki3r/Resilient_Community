@@ -216,6 +216,7 @@ class BlotterController extends Controller
             $validated['status'] = $validated['status'] ?? 'Pending';
             $validated['priority_level'] = $validated['priority_level'] ?? 'Medium';
             $validated['complainant_id'] = $mobileuser->id;
+            $validated['complainant_contact'] = $mobileuser->phone;
             $validated['barangay'] = $mobileuser->barangay;
 
             $blotter = Blotter::create($validated);
