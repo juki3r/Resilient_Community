@@ -483,27 +483,45 @@ class AppUserController extends Controller
 
 
 
+    // ================= LIST (with search + pagination) =================
     public function index(Request $request)
     {
-        $search = $request->search;
 
-        $query = MobileUser::query()
-            ->where('user_id', auth()->id());
+        $user = auth()->user();
 
-        if ($search) {
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $query = MobileUser::where('barangay', $user->barangay);
+
+        // SEARCH
+        if ($request->filled('search')) {
+            $search = $request->search;
+
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('middle_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
+                $q->where('full_name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('barangay', 'like', "%{$search}%");
+                    ->orWhere('barangay', 'like', "%{$search}%")
+                    ->orWhere('municipality', 'like', "%{$search}%");
             });
         }
 
-        $users = $query->latest()->paginate(10);
+        // ORDER (latest users first)
+        $query->orderBy('created_at', 'desc');
 
-        return response()->json($users);
+        return response()->json(
+            $query->paginate(10)
+        );
+    }
+
+    // ================= SINGLE USER =================
+    public function show($id)
+    {
+        $user = MobileUser::findOrFail($id);
+
+        return response()->json($user);
     }
 
     public function show(MobileUser $mobileUser)

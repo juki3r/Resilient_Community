@@ -114,6 +114,7 @@ class BlotterController extends Controller
     // }
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'incident_type' => 'required|string',
             'incident_category' => 'nullable|string',

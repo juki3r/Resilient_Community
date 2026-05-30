@@ -97,6 +97,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+
+
     //=========================== WEB =======================================================
 
     //Logout
@@ -165,6 +167,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evacuation-centers', [EvacuationCenterController::class, 'store']);
     Route::put('/evacuation-centers/{id}', [EvacuationCenterController::class, 'update']);
     Route::delete('/evacuation-centers/{id}', [EvacuationCenterController::class, 'destroy']);
+
+    //App Users
+
+    Route::get('/appusers', [AppUserController::class, 'index']);
+    Route::get('/appusers/{id}', [AppUserController::class, 'show']);
 
 
     //Concerns
