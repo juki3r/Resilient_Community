@@ -486,12 +486,7 @@ class AppUserController extends Controller
     // ================= LIST (with search + pagination) =================
     public function index(Request $request)
     {
-
         $user = auth()->user();
-
-        if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
 
         $query = MobileUser::where('barangay', $user->barangay);
 
@@ -502,17 +497,12 @@ class AppUserController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('barangay', 'like', "%{$search}%")
-                    ->orWhere('municipality', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        // ORDER (latest users first)
-        $query->orderBy('created_at', 'desc');
-
         return response()->json(
-            $query->paginate(10)
+            $query->orderBy('created_at', 'desc')->paginate(10)
         );
     }
 
