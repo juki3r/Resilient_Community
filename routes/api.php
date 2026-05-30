@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlotterController;
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\ConcernController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EvacuationCenterController;
 use App\Http\Controllers\Api\EventsController;
 use App\Http\Controllers\Api\IncidentController;
@@ -109,6 +110,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::apiResource('mobile-users', AppUserController::class);
     Route::apiResource('announcements', AnnouncementController::class);
 
+
+    //Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
     //Residents
     Route::get('/residents', [ResidentController::class, 'index']);
