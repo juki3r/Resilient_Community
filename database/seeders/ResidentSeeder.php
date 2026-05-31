@@ -79,7 +79,7 @@ class ResidentSeeder extends Seeder
             $birthDate = Carbon::now()->subYears(rand(18, 70))->subDays(rand(1, 3650));
 
             DB::table('residents')->insert([
-                'resident_code' => 'R-2026-' . str_pad($i, 5, '0', STR_PAD_LEFT),
+                'resident_code' => 'P-2026-' . str_pad($i, 5, '0', STR_PAD_LEFT),
                 'household_number' => 'HH-' . rand(1000, 1050),
                 'family_number' => 'FAM-' . rand(500, 550),
 
