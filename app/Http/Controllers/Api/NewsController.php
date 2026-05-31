@@ -115,15 +115,15 @@ class NewsController extends Controller
             $user->barangay
         );
 
-        $facebook = new FacebookService();
+        // $facebook = new FacebookService();
 
-        $message = $request->title . "\n\n" . $request->content;
+        // $message = $request->title . "\n\n" . $request->content;
 
-        $response = $facebook->postToPage(
-            $user->fb_page_id,
-            $user->fb_page_token,
-            $message
-        );
+        // $response = $facebook->postToPage(
+        //     $user->fb_page_id,
+        //     $user->fb_page_token,
+        //     $message
+        // );
 
         //====================================================================================
 
