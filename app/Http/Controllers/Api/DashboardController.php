@@ -208,7 +208,21 @@ class DashboardController extends Controller
                 ],
             ],
 
-            "live_incidents" => $incidentQuery
+            // "live_incidents" => $incidentQuery
+            //     ->orderByDesc('created_at')
+            //     ->limit(10)
+            //     ->get([
+            //         'id',
+            //         'type',
+            //         'location',
+            //         'status',
+            //         'incident_datetime',
+            //         'created_at'
+            //     ]),
+            "live_incidents" => Incident::query()
+                ->when($user->role === "bdrrmo_admin", function ($q) use ($barangay) {
+                    $q->where('barangay', $barangay);
+                })
                 ->orderByDesc('created_at')
                 ->limit(10)
                 ->get([
@@ -219,6 +233,7 @@ class DashboardController extends Controller
                     'incident_datetime',
                     'created_at'
                 ]),
+
         ]);
     }
 }
