@@ -12,9 +12,15 @@ class FacebookService
     {
         $url = "https://graph.facebook.com/{$pageId}/feed";
 
-        return Http::post($url, [
+        $response = Http::asForm()->post($url, [
             'message' => $message,
             'access_token' => $pageToken,
-        ])->json();
+        ]);
+
+        if (!$response->successful()) {
+            throw new \Exception($response->body());
+        }
+
+        return $response->json();
     }
 }
