@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SendAdminNotificationJob;
 use App\Models\News;
 use App\Models\NewsView;
+use App\Services\FacebookService;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -112,6 +113,16 @@ class NewsController extends Controller
                 'url' => '/certificates'
             ],
             $user->barangay
+        );
+
+        $facebook = new FacebookService();
+
+        $message = $request->title . "\n\n" . $request->content;
+
+        $response = $facebook->postToPage(
+            $user->fb_page_id,
+            $user->fb_page_token,
+            $message
         );
 
         //====================================================================================
