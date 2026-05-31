@@ -117,8 +117,7 @@ class NewsController extends Controller
 
         $facebook = new FacebookService();
 
-        // $message = $request->title . "\n\n" . $request->content;
-        $message = "Test post from Laravel API " . now();
+        $message = $request->title . "\n\n" . $request->content;
 
         $response = $facebook->postToPage(
             $user->fb_page_id,
